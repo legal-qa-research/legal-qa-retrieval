@@ -22,11 +22,11 @@ class Bm25Ranker:
 
 
 if __name__ == '__main__':
-    ap: ArticlePool = pickle.load(open('data_processor/article_pool.pkl', 'rb'))
-    qp: QuestionPool = pickle.load(open('data_processor/question_pool.pkl', 'rb'))
-    br: Bm25Ranker = pickle.load(open('bm25_ranking/bm25_ranker.pkl', 'rb'))
+    ap: ArticlePool = pickle.load(open('pkl_file/article_pool.pkl', 'rb'))
+    qp: QuestionPool = pickle.load(open('pkl_file/question_pool.pkl', 'rb'))
+    br: Bm25Ranker = pickle.load(open('pkl_file/bm25_ranker.pkl', 'rb'))
     # br = Bm25Ranker(ap, qp)
-    # pickle.dump(br, open('bm25_ranking/bm25_ranker.pkl', 'wb'))
+    # pickle.dump(br, open('pkl_file/bm25_ranker.pkl', 'wb'))
     test_id = 100
     topn = 1000
     print(qp.proc_ques_pool[test_id])
