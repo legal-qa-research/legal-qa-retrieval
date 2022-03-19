@@ -1,5 +1,6 @@
 from typing import List
 
+import torch
 from sentence_transformers.evaluation import BinaryClassificationEvaluator
 
 from sent_bert_triploss.data import Data
@@ -14,6 +15,7 @@ class TrainingProcess:
         self.data = Data()
         self.model = get_sent_bert_model()
         self.loss_fn = losses.ContrastiveLoss(model=self.model)
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.num_epoch = args.n_epochs
 
     def get_evaluator(self, lis_examples: List[InputExample]):
@@ -26,6 +28,7 @@ class TrainingProcess:
     def start_training(self):
         train_dataloader, lis_test_examples = self.data.build_dataset()
         evaluator = self.get_evaluator(lis_examples=lis_test_examples)
+        self.model = self.model.to(self.device)
 
         self.model.fit(train_objectives=[(train_dataloader, self.loss_fn)], epochs=self.num_epoch,
                        warmup_steps=100, show_progress_bar=True, save_best_model=True,
