@@ -23,7 +23,8 @@ class TrainingProcess:
         lis_sentence2 = [examples.texts[1] for examples in lis_examples]
         labels = [examples.label for examples in lis_examples]
         return BinaryClassificationEvaluator(sentences1=lis_sentence1, sentences2=lis_sentence2, labels=labels,
-                                             batch_size=self.args.batch_size)
+                                             batch_size=self.args.batch_size, show_progress_bar=True,
+                                             write_csv=True)
 
     def start_training(self):
         train_dataloader, lis_test_examples = self.data.build_dataset()
