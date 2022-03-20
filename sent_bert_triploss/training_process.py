@@ -32,5 +32,6 @@ class TrainingProcess:
 
         self.model.fit(train_objectives=[(train_dataloader, self.loss_fn)], epochs=self.num_epoch,
                        warmup_steps=100, show_progress_bar=True, save_best_model=True,
+                       evaluation_steps=self.args.evaluation_steps,
                        checkpoint_path='sent_bert_triploss/chkpoint', output_path='sent_bert_triploss/output_model',
                        evaluator=evaluator)

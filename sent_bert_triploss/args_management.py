@@ -24,6 +24,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--evaluation_steps",
+    default=100,
+    type=int,
+    help="Number of step training for each evaluation",
+)
+
+parser.add_argument(
     "--dev_file",
     default='data/used_data/dev_edata.csv',
     type=str,
