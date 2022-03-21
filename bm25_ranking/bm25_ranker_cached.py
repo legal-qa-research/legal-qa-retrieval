@@ -8,10 +8,14 @@ from data_processor.question_pool import QuestionPool
 
 
 class Bm25RankerCached:
-    def __init__(self):
+    def __init__(self, cached_path=None):
         self.ap: ArticlePool = pickle.load(open('pkl_file/article_pool.pkl', 'rb'))
         self.qp: QuestionPool = pickle.load(open('pkl_file/question_pool.pkl', 'rb'))
         self.br: Bm25Ranker = pickle.load(open('pkl_file/bm25_ranker.pkl', 'rb'))
+        if cached_path is not None:
+            self.cached_rel_aid = pickle.load(open('pkl_file/cached_rel.pkl', 'rb'))
+        else:
+            self.cached_rel_aid = None
 
     def start_build_cache(self, top_n=100):
         cached_rel_aid = []
@@ -20,9 +24,12 @@ class Bm25RankerCached:
             cached_rel_aid.append(lis_rel_aid)
         pickle.dump(cached_rel_aid, open('pkl_file/cached_rel.pkl', 'wb'))
 
+    def get_topn(self, ques_id: int, top_n=100):
+        return self.cached_rel_aid[ques_id]
+
 
 if __name__ == '__main__':
     bm_cached = Bm25RankerCached()
-    bm_cached.start_build_cache()
+    # bm_cached.start_build_cache()
     # cached_rel = pickle.load(open('pkl_file/cached_rel.pkl', 'rb'))
     # print(cached_rel)
