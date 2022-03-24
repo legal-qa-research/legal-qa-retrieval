@@ -14,7 +14,7 @@ from sent_bert_triploss.constant import pkl_private_question_pool, pkl_article_p
 from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission
 
 
-class InferProcess:
+class ValidateProcess:
     def __init__(self, args):
         self.args = args
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'

@@ -65,12 +65,12 @@ def calculate_f2score(predict_aid: List[List[ArticleIdentity]], true_aid: List[L
 def write_submission(lis_ques: List[Question]):
     result = []
     for ques in lis_ques:
-        result.append([
+        result.append(
             {
                 'question_id': ques.question_id,
                 'relevant_articles': [
                     {'law_id': aid.law_id, 'article_id': aid.article_id} for aid in ques.relevance_articles
                 ]
             }
-        ])
+        )
     json.dump(result, open('result.json', 'w'))
