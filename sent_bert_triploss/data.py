@@ -14,19 +14,14 @@ from utils.utilities import split_ids, get_raw_from_preproc
 
 
 class Data:
-    def __init__(self, top_n=100, used_bm25_cached=True):
-        self.used_bm25_cached = used_bm25_cached
-        self.top_n = top_n
-        if not used_bm25_cached:
-            self.bm25_ranker: Bm25Ranker = pickle.load(open('pkl_file/bm25_ranker.pkl', 'rb'))
-        else:
-            self.bm25_ranker: Bm25RankerCached = Bm25RankerCached(cached_path='pkl_file/private_cached_rel.pkl')
-        self.question_pool: QuestionPool = pickle.load(open('pkl_file/question_pool.pkl', 'rb'))
-        self.article_pool: ArticlePool = pickle.load(open('pkl_file/article_pool.pkl', 'rb'))
+    def __init__(self, pkl_question_pool_path: str, pkl_article_pool_path: str, pkl_cached_rel_path: str):
+        self.cached_rel = pickle.load(open(pkl_cached_rel_path, 'rb'))
+        self.question_pool: QuestionPool = pickle.load(open(pkl_question_pool_path, 'rb'))
+        self.article_pool: ArticlePool = pickle.load(open(pkl_article_pool_path, 'rb'))
 
     def generate_input_examples(self, qid: int) -> List[InputExample]:
         txt_ques = get_raw_from_preproc(self.question_pool.proc_ques_pool[qid])
-        candidate_aid = self.bm25_ranker.get_topn(ques_id=qid, top_n=self.top_n)
+        candidate_aid = self.cached_rel[qid]
         positive_aid = [self.article_pool.get_position(article_identity) for article_identity in
                         self.question_pool.lis_ques[qid].relevance_articles]
         return [InputExample(texts=[txt_ques, get_raw_from_preproc(self.article_pool.proc_text_pool[aid])],

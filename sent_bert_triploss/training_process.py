@@ -3,6 +3,7 @@ from typing import List
 import torch
 from sentence_transformers.evaluation import BinaryClassificationEvaluator
 
+from sent_bert_triploss.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
 from sent_bert_triploss.data import Data
 from sent_bert_triploss.sent_bert_model import get_sent_bert_model
 from sentence_transformers import losses
@@ -12,7 +13,8 @@ from sentence_transformers import InputExample
 class TrainingProcess:
     def __init__(self, args):
         self.args = args
-        self.data = Data()
+        self.data = Data(pkl_question_pool_path=pkl_question_pool, pkl_article_pool_path=pkl_article_pool,
+                         pkl_cached_rel_path=pkl_cached_rel)
         self.model = get_sent_bert_model()
         self.loss_fn = losses.ContrastiveLoss(model=self.model)
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -34,5 +36,6 @@ class TrainingProcess:
         self.model.fit(train_objectives=[(train_dataloader, self.loss_fn)], epochs=self.num_epoch,
                        warmup_steps=100, show_progress_bar=True, save_best_model=True,
                        evaluation_steps=self.args.evaluation_steps,
-                       checkpoint_path='sent_bert_triploss/chkpoint', output_path='sent_bert_triploss/output_model',
+                       checkpoint_path='sent_bert_triploss/chkpoint',
+                       output_path='sent_bert_triploss/output_model',
                        evaluator=evaluator)
