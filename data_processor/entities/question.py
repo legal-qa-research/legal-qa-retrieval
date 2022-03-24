@@ -1,7 +1,11 @@
+from typing import List
+
 from data_processor.entities.article_identity import ArticleIdentity
 
 
 class Question:
+    relevance_articles: List[ArticleIdentity]
+
     def __init__(self, question_json: dict):
         self.question_id = question_json.get('question_id')
         self.question = question_json.get('question')

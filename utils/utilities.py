@@ -1,13 +1,16 @@
+import json
 from random import shuffle
 
 from typing import List, Tuple
 
+import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer, util
 from torch import Tensor
 
 from data_processor.article_pool import ArticlePool
 from data_processor.entities.article_identity import ArticleIdentity
+from data_processor.entities.question import Question
 
 
 def get_raw_from_preproc(preproc):
@@ -27,7 +30,7 @@ def predict_relevance_article(model: SentenceTransformer, encoded_ques: Tensor, 
                               arti_pool: ArticlePool, threshold=0.5) -> List[ArticleIdentity]:
     lis_raw_article = [get_raw_from_preproc(arti_pool.proc_text_pool[aid]) for aid in top_n_aid]
     lis_encoded_article = model.encode(sentences=lis_raw_article)
-    cosim_matrix = util.cos_sim(torch.Tensor([encoded_ques]), lis_encoded_article)
+    cosim_matrix = util.cos_sim(torch.Tensor(np.array([encoded_ques])), lis_encoded_article)
     lis_aid = [arti_pool.article_identity[i] for i, is_greater in enumerate(cosim_matrix[0] >= threshold) if
                is_greater is True]
     return lis_aid
@@ -57,3 +60,17 @@ def calculate_f2score(predict_aid: List[List[ArticleIdentity]], true_aid: List[L
         f2i = calculate_single_f2score(predict_aid[i], true_aid[i])
         total_f2i += f2i
     return total_f2i / (n_ques + esp)
+
+
+def write_submission(lis_ques: List[Question]):
+    result = []
+    for ques in lis_ques:
+        result.append([
+            {
+                'question_id': ques.question_id,
+                'relevant_articles': [
+                    {'law_id': aid.law_id, 'article_id': aid.article_id} for aid in ques.relevance_articles
+                ]
+            }
+        ])
+    json.dump(result, open('result.json', 'w'))
