@@ -45,8 +45,8 @@ esp = 1e-10
 
 def calculate_single_f2score(predict_aid: List[ArticleIdentity], true_aid: List[ArticleIdentity]) -> float:
     n_true_predict = len([aid for aid in predict_aid if is_contained(true_aid, aid)])
-    precision = n_true_predict / len(predict_aid)
-    recall = n_true_predict / len(true_aid)
+    precision = n_true_predict / (len(predict_aid) + esp)
+    recall = n_true_predict / (len(true_aid) + esp)
     return (5 * precision * recall) / (4 * precision + recall + esp)
 
 
