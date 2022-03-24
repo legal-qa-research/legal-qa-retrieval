@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from tqdm import tqdm
 
 from data_processor.entities.article_identity import ArticleIdentity
@@ -13,8 +15,9 @@ class ArticlePool:
         self.proc_text_pool = None
         self.title_pool = [article.title for law in self.legal_corpus.laws for article in law.articles]
         self.proc_title_pool = None
-        self.article_identity = [(law.law_id, article.article_id)
-                                 for law in self.legal_corpus.laws for article in law.articles]
+        self.article_identity: List[ArticleIdentity] = [
+            ArticleIdentity({'law_id': law.law_id, 'article_id': article.article_id})
+            for law in self.legal_corpus.laws for article in law.articles]
 
     def run_preprocess(self, preprocessor: Preprocessor):
         self.proc_text_pool = [preprocessor.preprocess(_txt) for _txt in
@@ -43,5 +46,3 @@ if __name__ == '__main__':
     article_pool.run_preprocess(preproc)
     pickle.dump(article_pool, open('data_processor/article_pool.pkl', 'wb'))
     # article_pool = pickle.load(open('data_processor/article_pool.pkl', 'rb'))
-
-    pass
