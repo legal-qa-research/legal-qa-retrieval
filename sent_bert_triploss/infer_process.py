@@ -9,6 +9,8 @@ from tqdm import tqdm
 from data_processor.article_pool import ArticlePool
 from data_processor.entities.article_identity import ArticleIdentity
 from data_processor.question_pool import QuestionPool
+from sent_bert_triploss.constant import pkl_private_question_pool, pkl_article_pool, \
+    pkl_private_cached_rel
 from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission
 
 
@@ -23,9 +25,9 @@ class InferProcess:
 
     @staticmethod
     def build_data():
-        ques_pool: QuestionPool = pickle.load(open('pkl_file/private_question_pool.pkl', 'rb'))
-        arti_pool: ArticlePool = pickle.load(open('pkl_file/article_pool.pkl', 'rb'))
-        cached_rel = pickle.load(open('pkl_file/private_cached_rel.pkl', 'rb'))
+        ques_pool: QuestionPool = pickle.load(open(pkl_private_question_pool, 'rb'))
+        arti_pool: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
+        cached_rel = pickle.load(open(pkl_private_cached_rel, 'rb'))
         return ques_pool, arti_pool, cached_rel
 
     def start_inference(self, is_choose_threshold=False):
