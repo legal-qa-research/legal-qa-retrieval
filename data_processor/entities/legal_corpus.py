@@ -5,6 +5,8 @@ from data_processor.entities.law import Law
 
 
 class LegalCorpus:
+    laws: List[Law]
+
     def __init__(self, json_path: str = None, laws: List[Law] = None):
         if json_path is None:
             self.laws = laws

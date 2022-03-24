@@ -1,5 +1,6 @@
 import json
 import pickle
+from typing import List
 
 from tqdm import tqdm
 
@@ -8,6 +9,9 @@ from data_processor.preprocessor import Preprocessor
 
 
 class QuestionPool:
+    lis_ques: List[Question]
+    proc_ques_pool: List[List[List[str]]]
+
     def __init__(self, ques_json_path: str):
         lis_ques_json = json.load(open(ques_json_path, 'r')).get('items')
         self.lis_ques = [Question(ques_json) for ques_json in lis_ques_json]

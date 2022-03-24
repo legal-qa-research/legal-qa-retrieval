@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 
 from tqdm import tqdm
 
@@ -9,13 +9,20 @@ import pickle
 
 
 class ArticlePool:
+    legal_corpus: LegalCorpus
+    text_pool: List[str]
+    proc_text_pool: List[List[List[str]]]
+    title_pool: List[str]
+    proc_title_pool: List[List[List[str]]]
+    article_identity: List[ArticleIdentity]
+
     def __init__(self, legal_corpus: LegalCorpus):
         self.legal_corpus = legal_corpus
         self.text_pool = [article.text for law in self.legal_corpus.laws for article in law.articles]
-        self.proc_text_pool = None
+        self.proc_text_pool = []
         self.title_pool = [article.title for law in self.legal_corpus.laws for article in law.articles]
-        self.proc_title_pool = None
-        self.article_identity: List[ArticleIdentity] = [
+        self.proc_title_pool = []
+        self.article_identity = [
             ArticleIdentity({'law_id': law.law_id, 'article_id': article.article_id})
             for law in self.legal_corpus.laws for article in law.articles]
 
@@ -27,7 +34,7 @@ class ArticlePool:
 
     def get_position(self, article_identity: ArticleIdentity):
         for i, identity in enumerate(self.article_identity):
-            if identity[0] == article_identity.law_id and identity[1] == article_identity.article_id:
+            if identity == article_identity:
                 return i
         return None
 

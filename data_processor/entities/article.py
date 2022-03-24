@@ -1,4 +1,8 @@
 class Article:
+    article_id: str
+    title: str
+    text: str
+
     def __init__(self, json_article: dict = None, article_id: str = None, title: str = None, text: str = None):
         if json_article is None:
             self.article_id = article_id

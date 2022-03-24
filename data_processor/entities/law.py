@@ -4,6 +4,9 @@ from data_processor.entities.article import Article
 
 
 class Law:
+    law_id: str
+    articles: List[Article]
+
     def __init__(self, json_law: dict = None, law_id: str = None, articles: List[Article] = None):
         if json_law is None:
             self.law_id = law_id
