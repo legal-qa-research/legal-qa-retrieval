@@ -20,7 +20,7 @@ class Data:
         if not used_bm25_cached:
             self.bm25_ranker: Bm25Ranker = pickle.load(open('pkl_file/bm25_ranker.pkl', 'rb'))
         else:
-            self.bm25_ranker: Bm25RankerCached = Bm25RankerCached(cached_path='pkl_file/cached_rel.pkl')
+            self.bm25_ranker: Bm25RankerCached = Bm25RankerCached(cached_path='pkl_file/private_cached_rel.pkl')
         self.question_pool: QuestionPool = pickle.load(open('pkl_file/question_pool.pkl', 'rb'))
         self.article_pool: ArticlePool = pickle.load(open('pkl_file/article_pool.pkl', 'rb'))
 
