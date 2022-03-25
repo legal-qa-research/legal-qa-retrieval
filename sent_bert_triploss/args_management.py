@@ -4,7 +4,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--model_name",
-    default="haisongzhang/roberta-tiny-cased",
+    # default="haisongzhang/roberta-tiny-cased",
+    default="vinai/phobert-base",
     type=str,
     help="name of pretrained language models",
 )
@@ -25,7 +26,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--evaluation_steps",
-    default=1000,
+    default=4000,
     type=int,
     help="Number of step training for each evaluation",
 )
