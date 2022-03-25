@@ -25,7 +25,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--evaluation_steps",
-    default=10,
+    default=1000,
     type=int,
     help="Number of step training for each evaluation",
 )
@@ -74,7 +74,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--accu_step",
-    default=1,
+    default=8,
     type=int,
     help="accu_grad_step",
 )

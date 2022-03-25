@@ -1,10 +1,11 @@
 from typing import List
 
 import torch
-from sentence_transformers.evaluation import BinaryClassificationEvaluator
+# from sentence_transformers.evaluation import BinaryClassificationEvaluator
 
 from sent_bert_triploss.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
 from sent_bert_triploss.data import Data
+from sent_bert_triploss.retrieval_evaluator_f2 import RetrievalEvaluatorF2
 from sent_bert_triploss.sent_bert_model import get_sent_bert_model
 from sentence_transformers import losses
 from sentence_transformers import InputExample
@@ -24,9 +25,12 @@ class TrainingProcess:
         lis_sentence1 = [examples.texts[0] for examples in lis_examples]
         lis_sentence2 = [examples.texts[1] for examples in lis_examples]
         labels = [examples.label for examples in lis_examples]
-        return BinaryClassificationEvaluator(sentences1=lis_sentence1, sentences2=lis_sentence2, labels=labels,
-                                             batch_size=self.args.batch_size, show_progress_bar=True,
-                                             write_csv=True, name='sent_bert_triploss.csv')
+        # return BinaryClassificationEvaluator(sentences1=lis_sentence1, sentences2=lis_sentence2, labels=labels,
+        #                                      batch_size=self.args.batch_size, show_progress_bar=True,
+        #                                      write_csv=True, name='sent_bert_triploss.csv')
+        return RetrievalEvaluatorF2(sentences1=lis_sentence1, sentences2=lis_sentence2, labels=labels,
+                                    batch_size=self.args.batch_size, show_progress_bar=True,
+                                    write_csv=True, name='sent_bert_triploss.csv')
 
     def start_training(self):
         train_dataloader, lis_test_examples = self.data.build_dataset()

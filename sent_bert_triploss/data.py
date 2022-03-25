@@ -3,8 +3,6 @@ from typing import List, Tuple
 
 from torch.utils.data import DataLoader
 
-from bm25_ranking.bm25_ranker import Bm25Ranker
-from bm25_ranking.bm25_ranker_cached import Bm25RankerCached
 from data_processor.article_pool import ArticlePool
 from data_processor.question_pool import QuestionPool
 from sentence_transformers import InputExample
@@ -24,6 +22,7 @@ class Data:
         candidate_aid = self.cached_rel[qid]
         positive_aid = [self.article_pool.get_position(article_identity) for article_identity in
                         self.question_pool.lis_ques[qid].relevance_articles]
+        candidate_aid = {*candidate_aid, *positive_aid}
         return [InputExample(texts=[txt_ques, get_raw_from_preproc(self.article_pool.proc_text_pool[aid])],
                              label=int(aid in positive_aid)) for aid in candidate_aid]
 
@@ -34,8 +33,8 @@ class Data:
         return examples
 
     def build_dataset(self) -> Tuple[DataLoader, List[InputExample]]:
-        # lis_train_qid, lis_test_qid = split_ids(n_samples=len(self.question_pool.lis_ques))
-        lis_train_qid, lis_test_qid = split_ids(n_samples=32)
+        lis_train_qid, lis_test_qid = split_ids(n_samples=len(self.question_pool.lis_ques))
+        # lis_train_qid, lis_test_qid = split_ids(n_samples=2)
         train_examples = self.generate_lis_example(lis_train_qid)
         test_examples = self.generate_lis_example(lis_test_qid)
         train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=args.batch_size)
