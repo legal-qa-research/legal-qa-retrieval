@@ -4,7 +4,23 @@ from sent_bert_triploss.args_management import args
 
 train_layers = [
     'auto_model.pooler.dense.bias',
-    'auto_model.pooler.dense.weight'
+    'auto_model.pooler.dense.weight',
+    'auto_model.encoder.layer.11.attention.self.query.weight',
+    'auto_model.encoder.layer.11.attention.self.query.bias',
+    'auto_model.encoder.layer.11.attention.self.key.weight',
+    'auto_model.encoder.layer.11.attention.self.key.bias',
+    'auto_model.encoder.layer.11.attention.self.value.weight',
+    'auto_model.encoder.layer.11.attention.self.value.bias',
+    'auto_model.encoder.layer.11.attention.output.dense.weight',
+    'auto_model.encoder.layer.11.attention.output.dense.bias',
+    'auto_model.encoder.layer.11.attention.output.LayerNorm.weight',
+    'auto_model.encoder.layer.11.attention.output.LayerNorm.bias',
+    'auto_model.encoder.layer.11.intermediate.dense.weight',
+    'auto_model.encoder.layer.11.intermediate.dense.bias',
+    'auto_model.encoder.layer.11.output.dense.weight',
+    'auto_model.encoder.layer.11.output.dense.bias',
+    'auto_model.encoder.layer.11.output.LayerNorm.weight',
+    'auto_model.encoder.layer.11.output.LayerNorm.bias'
 ]
 
 
