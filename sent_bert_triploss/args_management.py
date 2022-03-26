@@ -11,6 +11,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--is_dev_phase",
+    default=0,
+    type=int,
+    help="Is in development phase or not",
+)
+
+parser.add_argument(
     "--max_seq_len",
     default=256,
     type=int,

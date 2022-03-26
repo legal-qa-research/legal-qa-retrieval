@@ -14,7 +14,8 @@ class TrainingProcess:
     def __init__(self, args):
         self.args = args
         self.data = Data(pkl_question_pool_path=pkl_question_pool, pkl_article_pool_path=pkl_article_pool,
-                         pkl_cached_rel_path=pkl_cached_rel, pkl_cached_split_ids=self.args.split_ids)
+                         pkl_cached_rel_path=pkl_cached_rel, pkl_cached_split_ids=self.args.split_ids,
+                         args=args)
         self.model = get_sent_bert_model()
         self.loss_fn = losses.ContrastiveLoss(model=self.model)
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
