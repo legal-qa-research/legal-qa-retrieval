@@ -1,5 +1,7 @@
+import os.path
 import pickle
-from typing import List, Tuple
+from random import shuffle
+from typing import List, Tuple, Dict
 
 from torch.utils.data import DataLoader
 
@@ -12,10 +14,14 @@ from utils.utilities import split_ids, get_raw_from_preproc
 
 
 class Data:
-    def __init__(self, pkl_question_pool_path: str, pkl_article_pool_path: str, pkl_cached_rel_path: str):
+    def __init__(self, pkl_question_pool_path: str, pkl_article_pool_path: str, pkl_cached_rel_path: str,
+                 pkl_cached_split_ids: str):
         self.cached_rel = pickle.load(open(pkl_cached_rel_path, 'rb'))
         self.question_pool: QuestionPool = pickle.load(open(pkl_question_pool_path, 'rb'))
         self.article_pool: ArticlePool = pickle.load(open(pkl_article_pool_path, 'rb'))
+        self.split_ids_dict = None
+        if pkl_cached_split_ids is not None and os.path.exists(pkl_cached_split_ids):
+            self.split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_cached_split_ids, 'rb'))
 
     def generate_input_examples(self, qid: int) -> List[InputExample]:
         txt_ques = get_raw_from_preproc(self.question_pool.proc_ques_pool[qid])
@@ -32,8 +38,22 @@ class Data:
             examples.extend(self.generate_input_examples(qid))
         return examples
 
+    def split_ids(self, n_samples: int, test_size=0.2):
+        if self.split_ids_dict is None:
+            train_size = 1 - test_size
+            cut_pos = int(n_samples * train_size)
+            lis_id = [i for i in range(n_samples)]
+            shuffle(lis_id)
+            self.split_ids_dict = {
+                'train': lis_id[:cut_pos],
+                'dev': lis_id[cut_pos:]
+            }
+            pickle.dump(self.split_ids_dict, open('pkl_file/split_ids.pkl', 'wb'))
+
+        return self.split_ids_dict['train'], self.split_ids_dict['dev']
+
     def build_dataset(self) -> Tuple[DataLoader, List[InputExample]]:
-        lis_train_qid, lis_test_qid = split_ids(n_samples=len(self.question_pool.lis_ques))
+        lis_train_qid, lis_test_qid = self.split_ids(n_samples=len(self.question_pool.lis_ques))
         # lis_train_qid, lis_test_qid = split_ids(n_samples=2)
         train_examples = self.generate_lis_example(lis_train_qid)
         test_examples = self.generate_lis_example(lis_test_qid)

@@ -73,4 +73,11 @@ parser.add_argument(
     help="Threshold of prediction",
 )
 
+parser.add_argument(
+    "--split_ids",
+    default=None,
+    type=str,
+    help="Split ids cached file",
+)
+
 args = parser.parse_args()
