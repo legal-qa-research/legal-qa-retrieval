@@ -1,7 +1,6 @@
 from typing import List
 
 import torch
-# from sentence_transformers.evaluation import BinaryClassificationEvaluator
 
 from sent_bert_triploss.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
 from sent_bert_triploss.data import Data
@@ -25,9 +24,6 @@ class TrainingProcess:
         lis_sentence1 = [examples.texts[0] for examples in lis_examples]
         lis_sentence2 = [examples.texts[1] for examples in lis_examples]
         labels = [examples.label for examples in lis_examples]
-        # return BinaryClassificationEvaluator(sentences1=lis_sentence1, sentences2=lis_sentence2, labels=labels,
-        #                                      batch_size=self.args.batch_size, show_progress_bar=True,
-        #                                      write_csv=True, name='sent_bert_triploss.csv')
         return RetrievalEvaluatorF2(sentences1=lis_sentence1, sentences2=lis_sentence2, labels=labels,
                                     batch_size=self.args.batch_size, show_progress_bar=True,
                                     write_csv=True, name='sent_bert_triploss.csv')
@@ -40,6 +36,7 @@ class TrainingProcess:
         self.model.fit(train_objectives=[(train_dataloader, self.loss_fn)], epochs=self.num_epoch,
                        warmup_steps=100, show_progress_bar=True, save_best_model=True,
                        evaluation_steps=self.args.evaluation_steps,
-                       checkpoint_path='sent_bert_triploss/chkpoint',
-                       output_path='sent_bert_triploss/output_model',
-                       evaluator=evaluator)
+                       checkpoint_path=self.args.chk_point,
+                       output_path=self.args.output_path,
+                       evaluator=evaluator, scheduler=self.args.scheduler, optimizer_params={'lr': self.args.lr},
+                       )

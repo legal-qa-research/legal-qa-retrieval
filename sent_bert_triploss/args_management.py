@@ -18,31 +18,10 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--training_file",
-    default="data/used_data/train_edata.csv",
-    type=str,
-    help="path of training file",
-)
-
-parser.add_argument(
     "--evaluation_steps",
     default=4000,
     type=int,
     help="Number of step training for each evaluation",
-)
-
-parser.add_argument(
-    "--dev_file",
-    default='data/used_data/dev_edata.csv',
-    type=str,
-    help="path of dev file",
-)
-
-parser.add_argument(
-    "--test_file",
-    default='data/used_data/test_edata.csv',
-    type=str,
-    help="path of test file",
 )
 
 parser.add_argument(
@@ -67,31 +46,24 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--seed",
-    default=96,
-    type=int,
-    help="seed for reproceduce",
-)
-
-parser.add_argument(
-    "--accu_step",
-    default=8,
-    type=int,
-    help="accu_grad_step",
-)
-
-parser.add_argument(
-    "--use_aug",
-    default=False,
+    "--scheduler",
+    default='warmupcosine',
     type=str,
-    help="use data augmentation or not",
+    help="Type of scheduler for sentbert",
 )
 
 parser.add_argument(
-    "--lang",
-    default='vi',
-    choices=['en', 'vi'],
-    help="language of training data",
+    "--output_path",
+    default='sent_bert_triploss/output_model',
+    type=str,
+    help='Path of output model',
+)
+
+parser.add_argument(
+    "--chk_point",
+    default='sent_bert_triploss/chkpoint',
+    type=str,
+    help="Checkpoint path",
 )
 
 parser.add_argument(
@@ -99,13 +71,6 @@ parser.add_argument(
     default=0.5,
     type=float,
     help="Threshold of prediction",
-)
-
-parser.add_argument(
-    "--chkpoint",
-    default=None,
-    type=str,
-    help="Checkpoint path",
 )
 
 args = parser.parse_args()
