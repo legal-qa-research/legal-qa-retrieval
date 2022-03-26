@@ -175,18 +175,27 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
     @staticmethod
     def find_best_f2score_and_threshold(sentences1: List[str], scores: np.ndarray, label: List[int]):
         ques_pool = set(sentences1)
+        scores_dict = {
+            sentences: [] for sentences in ques_pool
+        }
+        label_dict = {
+            sentences: [] for sentences in ques_pool
+        }
+        for i in range(len(sentences1)):
+            scores_dict[sentences1[i]].append(scores[i])
+            label_dict[sentences1[i]].append(label[i])
+
         max_f2score = -1
         best_threshold = None
         for threshold in np.arange(-1, 1, 0.01):
-            pred_label = []
-            true_label = []
             total_f2 = 0
+
             for ques in ques_pool:
-                for i in range(len(sentences1)):
-                    if sentences1[i] == ques:
-                        pred_label.append(scores[i] >= threshold)
-                        true_label.append(label[i])
-                total_f2 += RetrievalEvaluatorF2.calculate_f2score(pred_label=pred_label, true_label=true_label)
+                ques_scores = scores_dict[ques]
+                ques_label = label_dict[ques]
+                ques_pred_label = [int(s >= threshold) for s in ques_scores]
+                total_f2 += RetrievalEvaluatorF2.calculate_f2score(pred_label=ques_pred_label, true_label=ques_label)
+
             avg_f2 = total_f2 / (len(ques_pool) + esp)
             if avg_f2 > max_f2score:
                 max_f2score = avg_f2
