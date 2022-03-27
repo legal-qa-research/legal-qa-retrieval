@@ -23,19 +23,21 @@ class Data:
         if pkl_cached_split_ids is not None and os.path.exists(pkl_cached_split_ids):
             self.split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_cached_split_ids, 'rb'))
 
-    def generate_input_examples(self, qid: int) -> List[InputExample]:
+    def generate_input_examples(self, qid: int, is_train: bool = True) -> List[InputExample]:
         txt_ques = get_raw_from_preproc(self.question_pool.proc_ques_pool[qid])
         candidate_aid = self.cached_rel[qid]
         positive_aid = [self.article_pool.get_position(article_identity) for article_identity in
                         self.question_pool.lis_ques[qid].relevance_articles]
-        candidate_aid = {*candidate_aid, *positive_aid}
+        if is_train:
+            candidate_aid = {*candidate_aid, *positive_aid}
+
         return [InputExample(texts=[txt_ques, get_raw_from_preproc(self.article_pool.proc_text_pool[aid])],
                              label=int(aid in positive_aid)) for aid in candidate_aid]
 
-    def generate_lis_example(self, lis_qid):
+    def generate_lis_example(self, lis_qid, is_train: bool = True):
         examples = []
         for qid in lis_qid:
-            examples.extend(self.generate_input_examples(qid))
+            examples.extend(self.generate_input_examples(qid, is_train=is_train))
         return examples
 
     def split_ids(self, test_size=0.2):
@@ -57,8 +59,8 @@ class Data:
 
     def build_dataset(self) -> Tuple[DataLoader, List[InputExample]]:
         lis_train_qid, lis_test_qid = self.split_ids()
-        train_examples = self.generate_lis_example(lis_train_qid)
-        test_examples = self.generate_lis_example(lis_test_qid)
+        train_examples = self.generate_lis_example(lis_train_qid, is_train=True)
+        test_examples = self.generate_lis_example(lis_test_qid, is_train=False)
         train_dataloader = DataLoader(train_examples, shuffle=True, batch_size=self.args.batch_size)
         # test_dataloader = DataLoader(test_examples, shuffle=False, batch_size=args.batch_size)
         return train_dataloader, test_examples
