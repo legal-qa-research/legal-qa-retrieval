@@ -16,7 +16,7 @@ class TrainingProcess:
         self.data = Data(pkl_question_pool_path=pkl_question_pool, pkl_article_pool_path=pkl_article_pool,
                          pkl_cached_rel_path=pkl_cached_rel, pkl_cached_split_ids=self.args.split_ids,
                          args=args)
-        self.model = get_sent_bert_model()
+        self.model = get_sent_bert_model(load_chk_point_path=args.load_chk_point)
         self.loss_fn = losses.ContrastiveLoss(model=self.model)
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.num_epoch = args.n_epochs

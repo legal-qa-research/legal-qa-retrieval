@@ -74,6 +74,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--load_chk_point",
+    default=None,
+    type=str,
+    help="Load checkpoint path for continue training",
+)
+
+parser.add_argument(
     "--threshold",
     default=0.5,
     type=float,
