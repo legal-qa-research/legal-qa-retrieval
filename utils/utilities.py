@@ -27,7 +27,7 @@ def split_ids(n_samples: int, test_size=0.2):
 
 
 def predict_relevance_article(model: SentenceTransformer, encoded_ques: Tensor, top_n_aid: List[int],
-                              arti_pool: ArticlePool, threshold=0.78) -> List[ArticleIdentity]:
+                              arti_pool: ArticlePool, threshold: float) -> List[ArticleIdentity]:
     lis_raw_article = [get_raw_from_preproc(arti_pool.proc_text_pool[aid]) for aid in top_n_aid]
     lis_encoded_article = model.encode(sentences=lis_raw_article)
     cosim_matrix = util.cos_sim(torch.Tensor(np.array([encoded_ques])), lis_encoded_article)
