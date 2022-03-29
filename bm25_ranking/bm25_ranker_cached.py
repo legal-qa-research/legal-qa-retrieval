@@ -50,6 +50,7 @@ if __name__ == '__main__':
     # private_bm_cached.start_build_cache()
     # cached_rel = pickle.load(open('pkl_file/private_cached_rel.pkl', 'rb'))
     # print(len(cached_rel))
-    bm_cached = Bm25RankerCached(pkl_bm25okapi='pkl_file/bm25okapi_v2.pkl')
-    bm_cached.test_cached_rel(cached_rel_path='pkl_file/cached_rel_v2.pkl')
-    # bm_cached.start_build_cache(cached_path='pkl_file/cached_rel_v2.pkl')
+    bm_cached = Bm25RankerCached(pkl_bm25okapi='pkl_file/bm25okapi_v2.pkl',
+                                 pkl_ques_pool='pkl_file/private_question_pool.pkl')
+    # bm_cached.test_cached_rel(cached_rel_path='pkl_file/cached_rel_v2.pkl')
+    bm_cached.start_build_cache(cached_path='pkl_file/private_cached_rel_v2.pkl')
