@@ -30,7 +30,7 @@ class ValidateProcess:
         cached_rel = pickle.load(open(pkl_private_cached_rel, 'rb'))
         return ques_pool, arti_pool, cached_rel
 
-    def start_inference(self, is_choose_threshold=False):
+    def start_validate(self):
         model = self.load_model()
         ques_pool, arti_pool, cached_rel = self.build_data()
         lis_encoded_question: List[Tensor] = model.encode(
