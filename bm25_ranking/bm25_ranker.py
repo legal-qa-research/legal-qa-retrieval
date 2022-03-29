@@ -26,7 +26,7 @@ class Bm25Ranker:
         pickle.dump(self.bm25okapi, open(output_path, 'wb'))
 
     def get_topn(self, ques_id: int, top_n: int):
-        lis_score = self.bm25okapi.get_scores(self.__raw_ques[ques_id])
+        lis_score = self.bm25okapi.get_scores(self.__raw_ques[ques_id].split(' '))
         return np.argsort(lis_score)[-top_n:]
 
 
