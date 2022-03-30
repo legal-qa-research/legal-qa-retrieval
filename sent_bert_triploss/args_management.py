@@ -94,4 +94,11 @@ parser.add_argument(
     help="Split ids cached file",
 )
 
+parser.add_argument(
+    "--use_contrast_loss_fn",
+    default=1,
+    type=int,
+    help="Use contrast loss or not",
+)
+
 args = parser.parse_args()

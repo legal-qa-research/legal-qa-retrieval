@@ -9,6 +9,7 @@ from data_processor.article_pool import ArticlePool
 from data_processor.question_pool import QuestionPool
 from sentence_transformers import InputExample
 
+from sent_bert_triploss.constant import pkl_split_ids
 from utils.utilities import get_raw_from_preproc
 
 
@@ -51,7 +52,7 @@ class Data:
                 'train': lis_id[:cut_pos],
                 'dev': lis_id[cut_pos:]
             }
-            pickle.dump(self.split_ids_dict, open('pkl_file/split_ids.pkl', 'wb'))
+            pickle.dump(self.split_ids_dict, open(pkl_split_ids, 'wb'))
         if self.args.is_dev_phase > 0:
             return self.split_ids_dict['train'][:1], self.split_ids_dict['dev'][:1]
         else:
