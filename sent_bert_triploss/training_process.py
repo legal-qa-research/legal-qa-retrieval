@@ -43,4 +43,5 @@ class TrainingProcess:
                        checkpoint_path=self.args.chk_point,
                        output_path=self.args.output_path,
                        evaluator=evaluator, scheduler=self.args.scheduler, optimizer_params={'lr': self.args.lr},
+                       checkpoint_save_total_limit=self.args.chk_limit
                        )

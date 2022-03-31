@@ -95,6 +95,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--chk_limit",
+    default=5,
+    type=int,
+    help="Maximum number of checkpoint to save",
+)
+
+parser.add_argument(
     "--use_contrast_loss_fn",
     default=1,
     type=int,
