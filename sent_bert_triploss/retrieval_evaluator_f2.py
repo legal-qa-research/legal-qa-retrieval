@@ -53,7 +53,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                     logger.getEffectiveLevel() == logging.INFO or logger.getEffectiveLevel() == logging.DEBUG)
         self.show_progress_bar = show_progress_bar
 
-        self.csv_file = "binary_classification_evaluation" + ("_" + name if name else '') + "_results.csv"
+        self.csv_file = "f2score_evaluation" + ("_" + name if name else '') + "_results.csv"
         self.csv_headers = ["epoch", "steps",
                             "cossim_accuracy", "cossim_accuracy_threshold", "cossim_f1", "cossim_precision",
                             "cossim_recall", "cossim_f1_threshold", "cossim_ap",
@@ -63,7 +63,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                             "euclidean_accuracy", "euclidean_accuracy_threshold", "euclidean_f1", "euclidean_precision",
                             "euclidean_recall", "euclidean_f1_threshold", "euclidean_ap",
                             "dot_accuracy", "dot_accuracy_threshold", "dot_f1", "dot_precision", "dot_recall",
-                            "dot_f1_threshold", "dot_ap"]
+                            "dot_f1_threshold", "dot_ap", "dot_f2_threshold", "dot_f2"]
 
     @classmethod
     def from_input_examples(cls, examples: List[InputExample], **kwargs):
@@ -89,10 +89,11 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
 
         logger.info("Binary Accuracy Evaluation of the model on " + self.name + " dataset" + out_txt)
 
-        scores = self.compute_metrices(model)
+        scores = self.compute_metrics(model)
 
         # Main score is the max of Average Precision (AP)
-        main_score = max(scores[short_name]['ap'] for short_name in scores)
+        # main_score = max(scores[short_name]['ap'] for short_name in scores)
+        main_score = scores['cossim']['f2']
 
         file_output_data = [epoch, steps]
 
@@ -115,7 +116,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
 
         return main_score
 
-    def compute_metrices(self, model):
+    def compute_metrics(self, model):
         sentences = list(set(self.sentences1 + self.sentences2))
         embeddings = model.encode(sentences, batch_size=self.batch_size, show_progress_bar=self.show_progress_bar,
                                   convert_to_numpy=True)
