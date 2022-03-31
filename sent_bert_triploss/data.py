@@ -33,7 +33,7 @@ class Data:
             candidate_aid = {*candidate_aid, *positive_aid}
 
         return [InputExample(texts=[txt_ques, get_raw_from_preproc(self.article_pool.proc_text_pool[aid])],
-                             label=int(aid in positive_aid)) for aid in candidate_aid]
+                             label=float(aid in positive_aid)) for aid in candidate_aid]
 
     def generate_lis_example(self, lis_qid, is_train: bool = True):
         examples = []
