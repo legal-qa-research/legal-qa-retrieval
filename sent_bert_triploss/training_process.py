@@ -18,7 +18,7 @@ class TrainingProcess:
                          args=args)
         self.model = get_sent_bert_model(load_chk_point_path=args.load_chk_point)
         if self.args.use_contrast_loss_fn == 1:
-            self.loss_fn = losses.ContrastiveLoss(model=self.model)
+            self.loss_fn = losses.OnlineContrastiveLoss(model=self.model)
         else:
             self.loss_fn = losses.CosineSimilarityLoss(model=self.model)
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
