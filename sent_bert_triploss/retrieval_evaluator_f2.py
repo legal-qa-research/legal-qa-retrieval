@@ -189,15 +189,15 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
         scores_dict = {
             sentences: [] for sentences in ques_pool
         }
-        arg_sort_scores_dict = {
-            sentences: np.argsort(scores_dict[sentences]) for sentences in ques_pool
-        }
         label_dict = {
             sentences: [] for sentences in ques_pool
         }
         for i in range(len(sentences1)):
             scores_dict[sentences1[i]].append(scores[i])
             label_dict[sentences1[i]].append(label[i])
+        arg_sort_scores_dict = {
+            sentences: np.argsort(scores_dict[sentences]) for sentences in ques_pool
+        }
 
         max_f2score_threshold = -1
         best_threshold = None
@@ -224,7 +224,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                 ques_label = label_dict[ques]
                 ques_scores = scores_dict[ques]
                 ques_pred_label = np.zeros(shape=(len(ques_scores),), dtype=int)
-                for idx in arg_sort_scores_dict[ques][:top_k]:
+                for idx in arg_sort_scores_dict[ques][-top_k:]:
                     ques_pred_label[idx] = 1
                 total_f2 += RetrievalEvaluatorF2.calculate_f2score(pred_label=ques_pred_label, true_label=ques_label)
 
