@@ -53,11 +53,16 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                     logger.getEffectiveLevel() == logging.INFO or logger.getEffectiveLevel() == logging.DEBUG)
         self.show_progress_bar = show_progress_bar
 
+        # 'f2_threshold': f2_threshold,
+        # 'f2_best_threshold': best_f2_threshold,
+        # 'f2_top_k': f2_top_k,
+        # 'f2_best_top_k': best_f2_top_k
         self.csv_file = "f2score_evaluation" + ("_" + name if name else '') + "_results.csv"
         self.csv_headers = ["epoch", "steps",
                             "cossim_accuracy", "cossim_accuracy_threshold", "cossim_f1", "cossim_precision",
                             "cossim_recall", "cossim_f1_threshold", "cossim_ap",
-                            "cossim_f2_threshold", "cossim_f2",
+                            "cossim_f2_threshold", "cossim_f2_best_threshold",
+                            "cossim_f2_top_k", "cossim_f2_best_top_k",
                             "manhatten_accuracy", "manhatten_accuracy_threshold", "manhatten_f1", "manhatten_precision",
                             "manhatten_recall", "manhatten_f1_threshold", "manhatten_ap",
                             "euclidean_accuracy", "euclidean_accuracy_threshold", "euclidean_f1", "euclidean_precision",
@@ -139,8 +144,10 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                                                   ['euclidean', 'Euclidean-Distance', euclidean_distances, False],
                                                   ['dot', 'Dot-Product', dot_scores, True]]:
             acc, acc_threshold = self.find_best_acc_and_threshold(scores, labels, reverse)
-            f2, f2_threshold = self.find_best_f2score_and_threshold(sentences1=self.sentences1, scores=cosine_scores,
-                                                                    label=self.labels)
+            f2_threshold, best_f2_threshold, f2_top_k, best_f2_top_k = self.find_best_f2score_and_threshold(
+                sentences1=self.sentences1,
+                scores=cosine_scores,
+                label=self.labels)
             f1, precision, recall, f1_threshold = self.find_best_f1_and_threshold(scores, labels, reverse)
             ap = average_precision_score(labels, scores * (1 if reverse else -1))
 
@@ -150,7 +157,8 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
             logger.info("Precision with {}:          {:.2f}".format(name, precision * 100))
             logger.info("Recall with {}:             {:.2f}".format(name, recall * 100))
             logger.info("Average Precision with {}:  {:.2f}\n".format(name, ap * 100))
-            logger.info(f'F2score: {f2} with threshold: {f2_threshold}')
+            logger.info(f'Choose by threshold | F2score: {f2_threshold} with threshold: {best_f2_threshold}')
+            logger.info(f'Choose by top_k | F2score: {f2_top_k} with threshold: {best_f2_top_k}')
 
             output_scores[short_name] = {
                 'accuracy': acc,
@@ -160,8 +168,10 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                 'precision': precision,
                 'recall': recall,
                 'ap': ap,
-                'f2': f2,
-                'f2_threshold': f2_threshold
+                'f2_threshold': f2_threshold,
+                'f2_best_threshold': best_f2_threshold,
+                'f2_top_k': f2_top_k,
+                'f2_best_top_k': best_f2_top_k
             }
 
         return output_scores
@@ -179,6 +189,9 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
         scores_dict = {
             sentences: [] for sentences in ques_pool
         }
+        arg_sort_scores_dict = {
+            sentences: np.argsort(scores_dict[sentences]) for sentences in ques_pool
+        }
         label_dict = {
             sentences: [] for sentences in ques_pool
         }
@@ -186,7 +199,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
             scores_dict[sentences1[i]].append(scores[i])
             label_dict[sentences1[i]].append(label[i])
 
-        max_f2score = -1
+        max_f2score_threshold = -1
         best_threshold = None
         for threshold in np.arange(-1, 1, 0.01):
             total_f2 = 0
@@ -198,10 +211,29 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                 total_f2 += RetrievalEvaluatorF2.calculate_f2score(pred_label=ques_pred_label, true_label=ques_label)
 
             avg_f2 = total_f2 / (len(ques_pool) + esp)
-            if avg_f2 > max_f2score:
-                max_f2score = avg_f2
+            if avg_f2 > max_f2score_threshold:
+                max_f2score_threshold = avg_f2
                 best_threshold = threshold
-        return max_f2score, best_threshold
+
+        max_f2score_top_k = -1
+        best_top_k = None
+
+        for top_k in range(10):
+            total_f2 = 0
+            for ques in ques_pool:
+                ques_label = label_dict[ques]
+                ques_scores = scores_dict[ques]
+                ques_pred_label = np.zeros(shape=(len(ques_scores),), dtype=int)
+                for idx in arg_sort_scores_dict[ques][:top_k]:
+                    ques_pred_label[idx] = 1
+                total_f2 += RetrievalEvaluatorF2.calculate_f2score(pred_label=ques_pred_label, true_label=ques_label)
+
+            avg_f2 = total_f2 / (len(ques_pool) + esp)
+            if avg_f2 > max_f2score_top_k:
+                max_f2score_top_k = avg_f2
+                best_top_k = top_k
+
+        return max_f2score_threshold, best_threshold, max_f2score_top_k, best_top_k
 
     @staticmethod
     def find_best_acc_and_threshold(scores, labels, high_score_more_similar: bool):
