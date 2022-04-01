@@ -2,7 +2,7 @@ from typing import List
 
 import torch
 
-from sent_bert_triploss.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
+from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
 from sent_bert_triploss.data import Data
 from sent_bert_triploss.retrieval_evaluator_f2 import RetrievalEvaluatorF2
 from sent_bert_triploss.sent_bert_model import get_sent_bert_model

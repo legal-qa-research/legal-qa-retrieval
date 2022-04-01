@@ -9,7 +9,7 @@ from tqdm import tqdm
 from data_processor.article_pool import ArticlePool
 from data_processor.entities.article_identity import ArticleIdentity
 from data_processor.question_pool import QuestionPool
-from sent_bert_triploss.constant import pkl_private_question_pool, pkl_article_pool, \
+from utils.constant import pkl_private_question_pool, pkl_article_pool, \
     pkl_private_cached_rel
 from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission
 

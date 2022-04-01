@@ -6,7 +6,7 @@ from typing import List, Tuple, Dict
 from data_processor.article_pool import ArticlePool
 from data_processor.question_pool import QuestionPool
 
-from sent_bert_triploss.constant import pkl_split_ids
+from utils.constant import pkl_split_ids
 from traditional_ml.input_examples import RawInputExample
 from utils.utilities import get_raw_from_preproc
 

@@ -9,7 +9,7 @@ from data_processor.article_pool import ArticlePool
 from data_processor.question_pool import QuestionPool
 from sentence_transformers import InputExample
 
-from sent_bert_triploss.constant import pkl_split_ids
+from utils.constant import pkl_split_ids
 from utils.utilities import get_raw_from_preproc
 
 
