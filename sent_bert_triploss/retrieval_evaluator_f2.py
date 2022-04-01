@@ -68,7 +68,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                             "euclidean_accuracy", "euclidean_accuracy_threshold", "euclidean_f1", "euclidean_precision",
                             "euclidean_recall", "euclidean_f1_threshold", "euclidean_ap",
                             "dot_accuracy", "dot_accuracy_threshold", "dot_f1", "dot_precision", "dot_recall",
-                            "dot_f1_threshold", "dot_ap", "dot_f2_threshold", "dot_f2"]
+                            "dot_f1_threshold", "dot_ap"]
 
     @classmethod
     def from_input_examples(cls, examples: List[InputExample], **kwargs):
@@ -98,7 +98,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
 
         # Main score is the max of Average Precision (AP)
         # main_score = max(scores[short_name]['ap'] for short_name in scores)
-        main_score = scores['cossim']['f2']
+        main_score = max(scores['cossim']['f2_threshold'], scores['cossim']['f2_top_k'])
 
         file_output_data = [epoch, steps]
 
