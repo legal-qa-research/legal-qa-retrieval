@@ -108,4 +108,11 @@ parser.add_argument(
     help="Use contrast loss or not",
 )
 
+parser.add_argument(
+    "--infer_top_k",
+    default=2,
+    type=int,
+    help="Top-k when inference",
+)
+
 args = parser.parse_args()
