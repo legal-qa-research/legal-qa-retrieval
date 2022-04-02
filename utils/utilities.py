@@ -17,6 +17,10 @@ def get_raw_from_preproc(preproc):
     return ' '.join([' '.join(sent) for sent in preproc])
 
 
+def get_flat_list_from_preproc(preproc: List[List[str]]) -> List[str]:
+    return [tok for sent in preproc for tok in sent]
+
+
 def split_ids(n_samples: int, test_size=0.2):
     train_size = 1 - test_size
     cut_pos = int(n_samples * train_size)

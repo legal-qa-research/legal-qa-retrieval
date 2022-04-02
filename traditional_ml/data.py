@@ -7,8 +7,8 @@ from data_processor.article_pool import ArticlePool
 from data_processor.question_pool import QuestionPool
 
 from utils.constant import pkl_split_ids
-from traditional_ml.input_examples import RawInputExample
-from utils.utilities import get_raw_from_preproc
+from traditional_ml.raw_input_example import RawInputExample
+from utils.utilities import get_flat_list_from_preproc
 
 
 class Data:
@@ -23,15 +23,15 @@ class Data:
             self.split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_cached_split_ids, 'rb'))
 
     def generate_input_examples(self, qid: int, is_train: bool = True) -> List[RawInputExample]:
-        txt_ques = get_raw_from_preproc(self.question_pool.proc_ques_pool[qid])
+        txt_ques = get_flat_list_from_preproc(self.question_pool.proc_ques_pool[qid])
         candidate_aid = self.cached_rel[qid]
         positive_aid = [self.article_pool.get_position(article_identity) for article_identity in
                         self.question_pool.lis_ques[qid].relevance_articles]
         if is_train:
             candidate_aid = {*candidate_aid, *positive_aid}
 
-        return [RawInputExample(ques_str=txt_ques,
-                                articles_str=get_raw_from_preproc(self.article_pool.proc_text_pool[aid]),
+        return [RawInputExample(ques=txt_ques,
+                                articles=get_flat_list_from_preproc(self.article_pool.proc_text_pool[aid]),
                                 label=float(aid in positive_aid))
                 for aid in candidate_aid]
 
