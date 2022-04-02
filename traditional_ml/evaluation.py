@@ -71,7 +71,7 @@ class Evaluation:
         return max_f2score, best_top_k
 
     @staticmethod
-    def write_csv(self, epoch, step, threshold_f2score, threshold, top_k_f2score, top_k):
+    def write_csv(epoch, step, threshold_f2score, threshold, top_k_f2score, top_k):
         s1 = pd.DataFrame({
             'epoch': [epoch],
             'step': [step],
@@ -95,9 +95,9 @@ class Evaluation:
             aid = test_example.article_id
             label = test_example.label
             if ques_id in eval_dict.keys():
-                eval_dict[ques_id].append((aid, y_prob[i], label))
+                eval_dict[ques_id].append((aid, y_prob[i][1], label))
             else:
-                eval_dict[ques_id] = [(aid, y_prob[i], label)]
+                eval_dict[ques_id] = [(aid, y_prob[i][1], label)]
 
         threshold_f2_score, best_threshold = self.choose_best_threshold(eval_dict)
         top_k_f2score, best_top_k = self.choose_best_top_k(eval_dict)
