@@ -1,3 +1,5 @@
+import json
+import pickle
 from typing import List
 
 import fasttext
@@ -5,6 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 from traditional_ml.args_management import args
+from traditional_ml.constant import train_examples_path, test_examples_path
 from traditional_ml.data import Data
 from traditional_ml.raw_input_example import RawInputExample
 from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel, pkl_split_ids
@@ -33,6 +36,8 @@ class FeaturesBuilder:
 
     def start_build(self, fast_text_type: str = ''):
         train_examples, test_examples = self.train_phase_data.build_dataset()
+        pickle.dump(train_examples, open(train_examples_path, 'wb'))
+        pickle.dump(test_examples, open(test_examples_path, 'wb'))
         train_data = self.build_feature(train_examples)
         test_data = self.build_feature(test_examples)
         np.save(f'traditional_ml/feature_data/train_data_{fast_text_type}.npy', train_data)
@@ -51,8 +56,8 @@ if __name__ == '__main__':
     from bm25_ranking.bm25_ranker import Bm25Ranker
     from bm25_ranking.bm25_ranker_cached import Bm25RankerCached
 
-    # fb = FeaturesBuilder(args=args, fasttext_model_path='traditional_ml/pretrained_fasttext/vnlaw_ft.bin')
+    fb = FeaturesBuilder(args=args, fasttext_model_path='traditional_ml/pretrained_fasttext/vnlaw_ft.bin')
     # fb = FeaturesBuilder(args=args, fasttext_model_path='traditional_ml/pretrained_fasttext/wiki.vi.bin')
-    # fb.start_build(fast_text_type='general')
+    fb.start_build(fast_text_type='general')
 
     test_built_feature()

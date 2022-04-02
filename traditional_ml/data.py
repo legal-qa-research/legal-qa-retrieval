@@ -30,9 +30,9 @@ class Data:
         if is_train:
             candidate_aid = {*candidate_aid, *positive_aid}
 
-        return [RawInputExample(ques=txt_ques,
+        return [RawInputExample(ques=txt_ques, ques_id=qid,
                                 articles=get_flat_list_from_preproc(self.article_pool.proc_text_pool[aid]),
-                                label=float(aid in positive_aid))
+                                article_id=aid, label=float(aid in positive_aid))
                 for aid in candidate_aid]
 
     def generate_lis_example(self, lis_qid, is_train: bool = True) -> List[RawInputExample]:
