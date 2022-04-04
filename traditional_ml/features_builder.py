@@ -4,6 +4,7 @@ from typing import List
 
 import fasttext
 import numpy as np
+from fasttext.FastText import _FastText
 from tqdm import tqdm
 
 from traditional_ml.args_management import args
@@ -11,6 +12,7 @@ from traditional_ml.constant import train_examples_path, test_examples_path
 from traditional_ml.data import Data
 from traditional_ml.raw_input_example import RawInputExample
 from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel, pkl_split_ids
+from utils.utilities import build_vec
 
 
 class FeaturesBuilder:
@@ -21,15 +23,11 @@ class FeaturesBuilder:
                                      pkl_cached_rel_path=pkl_cached_rel, pkl_cached_split_ids=pkl_split_ids,
                                      args=self.args)
 
-    def build_vec(self, lis_tok: List[str]):
-        v = np.stack([self.fasttext_model.get_word_vector(tok) for tok in lis_tok])
-        return v.mean(axis=0)
-
     def build_feature(self, lis_examples: List[RawInputExample]) -> np.ndarray:
         data = []
         for input_exp in tqdm(lis_examples, desc='Build Features'):
-            ques_vec = self.build_vec(input_exp.ques)
-            art_vec = self.build_vec(input_exp.articles)
+            ques_vec = build_vec(ft=self.fasttext_model, lis_tok=input_exp.ques)
+            art_vec = build_vec(ft=self.fasttext_model, lis_tok=input_exp.articles)
             label = input_exp.label
             data.append(np.concatenate((ques_vec, art_vec, [label]), axis=0))
         return np.stack(data)
