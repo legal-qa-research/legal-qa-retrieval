@@ -57,7 +57,7 @@ class RunInferProcess:
         for raw_inp in sorted_lis:
             qid = raw_inp.ques_id
             aid = raw_inp.article_id
-            if len(self.ques_pool.lis_ques[qid].relevance_articles) == self.args.top_k:
+            if len(self.ques_pool.lis_ques[qid].relevance_articles) == self.args.infer_top_k:
                 self.ques_pool.lis_ques[qid].relevance_articles.pop(0)
             self.ques_pool.lis_ques[qid].relevance_articles.append(self.arti_pool.article_identity[aid])
 
