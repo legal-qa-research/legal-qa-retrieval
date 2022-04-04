@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 import numpy as np
 import torch
+from fasttext.FastText import _FastText
 from sentence_transformers import SentenceTransformer, util
 from torch import Tensor
 
@@ -14,6 +15,11 @@ from data_processor.entities.article_identity import ArticleIdentity
 from data_processor.entities.question import Question
 from data_processor.question_pool import QuestionPool
 from utils.constant import pkl_private_question_pool, pkl_article_pool, pkl_private_cached_rel
+
+
+def build_vec(ft: _FastText, lis_tok: List[str]):
+    v = np.stack([ft.get_word_vector(tok) for tok in lis_tok])
+    return v.mean(axis=0)
 
 
 def build_private_data():
