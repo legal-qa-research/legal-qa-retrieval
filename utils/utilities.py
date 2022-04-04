@@ -22,7 +22,7 @@ def build_vec(ft: _FastText, lis_tok: List[str]) -> np.ndarray:
     return v.mean(axis=0)
 
 
-def build_private_data():
+def build_private_data() -> Tuple[QuestionPool, ArticlePool, List[List[int]]]:
     ques_pool: QuestionPool = pickle.load(open(pkl_private_question_pool, 'rb'))
     arti_pool: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
     cached_rel = pickle.load(open(pkl_private_cached_rel, 'rb'))
