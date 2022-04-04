@@ -42,7 +42,7 @@ class RunInferProcess:
             aid = lis_raw_inp_exp[i].article_id
             qid = lis_raw_inp_exp[i].ques_id
             prob = lis_raw_inp_exp[i].prob
-            if prob >= self.args.threshold:
+            if prob >= self.args.infer_threshold:
                 self.ques_pool.lis_ques[qid].relevance_articles.append(self.arti_pool.article_identity[aid])
         write_submission(lis_ques=self.ques_pool.lis_ques, fn='trad_ml_svm_threshold.json')
 
