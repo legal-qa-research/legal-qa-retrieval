@@ -17,7 +17,7 @@ from data_processor.question_pool import QuestionPool
 from utils.constant import pkl_private_question_pool, pkl_article_pool, pkl_private_cached_rel
 
 
-def build_vec(ft: _FastText, lis_tok: List[str]):
+def build_vec(ft: _FastText, lis_tok: List[str]) -> np.ndarray:
     v = np.stack([ft.get_word_vector(tok) for tok in lis_tok])
     return v.mean(axis=0)
 
