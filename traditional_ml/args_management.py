@@ -23,4 +23,11 @@ parser.add_argument(
     help="Top-k when inference",
 )
 
+parser.add_argument(
+    "--infer_threshold",
+    default=0,
+    type=float,
+    help="Threshold when inference",
+)
+
 args = parser.parse_args()
