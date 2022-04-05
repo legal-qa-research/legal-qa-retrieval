@@ -25,7 +25,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--max_seq_length",
-    default=256,
+    default=245,
     type=int,
     help="BERT max sequence length",
 )

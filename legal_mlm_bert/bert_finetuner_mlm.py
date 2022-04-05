@@ -20,7 +20,7 @@ class BertFinetunerMLM:
         self.num_proc_dataset = 4
 
     def tokenize_function(self, examples):
-        return self.tokenizer(examples['text'], padding='max_length', max_length=self.block_size)
+        return self.tokenizer(examples['text'], padding=True)
 
     def group_raw_texts(self, examples: Batch) -> Dict:
         assert 'text' in list(examples.keys()), 'Expected text key in group_raw_text method'
@@ -36,12 +36,12 @@ class BertFinetunerMLM:
     def build_dataset(self):
         raw_dataset: Dataset = load_dataset('text', data_files=self.data_path, split=Split.TRAIN)
         split_raw_dataset: DatasetDict = raw_dataset.train_test_split(test_size=0.1)
-        group_text_dataset = split_raw_dataset.map(
-            self.group_raw_texts,
-            batched=True,
-            num_proc=self.num_proc_dataset
-        )
-        lm_dataset = group_text_dataset.map(
+        # group_text_dataset = split_raw_dataset.map(
+        #     self.group_raw_texts,
+        #     batched=True,
+        #     num_proc=self.num_proc_dataset
+        # )
+        lm_dataset = split_raw_dataset.map(
             self.tokenize_function,
             batched=True,
             num_proc=self.num_proc_dataset,
