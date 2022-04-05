@@ -20,7 +20,7 @@ class BertFinetunerMLM:
         self.num_proc_dataset = 4
 
     def tokenize_function(self, examples):
-        return self.tokenizer(examples['text'], padding=True)
+        return self.tokenizer(examples['text'])
 
     def group_raw_texts(self, examples: Batch) -> Dict:
         assert 'text' in list(examples.keys()), 'Expected text key in group_raw_text method'
@@ -33,6 +33,21 @@ class BertFinetunerMLM:
         }
         return result
 
+    def group_texts(self, examples):
+        # Concatenate all texts.
+        concatenated_examples = {k: sum(examples[k], []) for k in examples.keys()}
+        total_length = len(concatenated_examples[list(examples.keys())[0]])
+        # We drop the small remainder, we could add padding if the model supported it instead of this drop, you can
+        # customize this part to your needs.
+        total_length = (total_length // self.block_size) * self.block_size
+        # Split by chunks of max_len.
+        result = {
+            k: [t[i: i + self.block_size] for i in range(0, total_length, self.block_size)]
+            for k, t in concatenated_examples.items()
+        }
+        result["labels"] = result["input_ids"].copy()
+        return result
+
     def build_dataset(self):
         raw_dataset: Dataset = load_dataset('text', data_files=self.data_path, split=Split.TRAIN)
         split_raw_dataset: DatasetDict = raw_dataset.train_test_split(test_size=0.1)
@@ -41,13 +56,20 @@ class BertFinetunerMLM:
         #     batched=True,
         #     num_proc=self.num_proc_dataset
         # )
-        lm_dataset = split_raw_dataset.map(
+        tokenized_dataset = split_raw_dataset.map(
             self.tokenize_function,
             batched=True,
             num_proc=self.num_proc_dataset,
             remove_columns=split_raw_dataset["train"].column_names,
         )
-        return lm_dataset
+        group_dataset = tokenized_dataset.map(
+            self.group_texts,
+            batched=True,
+            num_proc=self.num_proc_dataset,
+            remove_columns=tokenized_dataset["train"].column_names,
+        )
+
+        return group_dataset
 
     def start_train(self):
         lm_dataset = self.build_dataset()
