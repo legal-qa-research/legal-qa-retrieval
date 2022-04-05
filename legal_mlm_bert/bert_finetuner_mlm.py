@@ -3,8 +3,8 @@ from typing import Dict
 
 from datasets import Split, Dataset, DatasetDict, load_dataset
 from datasets.arrow_dataset import Batch
-from transformers import PhobertTokenizer, DataCollatorForLanguageModeling, AutoModelForCausalLM, TrainingArguments, \
-    IntervalStrategy, Trainer
+from transformers import DataCollatorForLanguageModeling, TrainingArguments, IntervalStrategy, Trainer, AutoTokenizer, \
+    AutoModelForMaskedLM
 
 from legal_mlm_bert.args_management import args
 
@@ -13,8 +13,8 @@ class BertFinetunerMLM:
     def __init__(self, args):
         self.args = args
         self.data_path = self.args.corpus_path
-        self.tokenizer = PhobertTokenizer.from_pretrained(self.args.model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(self.args.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.args.model_name, use_fast=True)
+        self.model = AutoModelForMaskedLM.from_pretrained(self.args.model_name)
         self.block_size = self.args.max_seq_length
         self.data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm_probability=0.15)
         self.num_proc_dataset = 4
