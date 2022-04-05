@@ -42,7 +42,7 @@ class BertFinetunerMLM:
             num_proc=self.num_proc_dataset
         )
         lm_dataset = group_text_dataset.map(
-            self.preprocess_function,
+            self.tokenize_function,
             batched=True,
             num_proc=self.num_proc_dataset,
             remove_columns=split_raw_dataset["train"].column_names,
