@@ -1,9 +1,10 @@
+import math
 from typing import Dict
 
 from datasets import Split, Dataset, DatasetDict, load_dataset
 from datasets.arrow_dataset import Batch
 from transformers import PhobertTokenizer, DataCollatorForLanguageModeling, AutoModelForCausalLM, TrainingArguments, \
-    IntervalStrategy, Trainer, AutoConfig, RobertaConfig
+    IntervalStrategy, Trainer
 
 from legal_mlm_bert.args_management import args
 
@@ -56,6 +57,7 @@ class BertFinetunerMLM:
             evaluation_strategy=IntervalStrategy.EPOCH,
             learning_rate=2e-5,
             weight_decay=0.01,
+            num_train_epochs=1
         )
 
         trainer = Trainer(
@@ -67,6 +69,10 @@ class BertFinetunerMLM:
         )
 
         trainer.train()
+
+        eval_results = trainer.evaluate()
+        print(f"Perplexity: {math.exp(eval_results['eval_loss']):.2f}")
+        trainer.save_model('./output_model')
 
 
 if __name__ == '__main__':
