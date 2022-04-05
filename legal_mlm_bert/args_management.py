@@ -4,7 +4,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--corpus_path",
-    default='legal_mlm_bert/bert_corpus_path_v1.txt',
+    default='legal_mlm_bert/mini_bert_corpus_path.txt',
     type=str,
     help="Path to corpus file",
 )
@@ -14,6 +14,13 @@ parser.add_argument(
     default='vinai/phobert-base',
     type=str,
     help="BERT Model name",
+)
+
+parser.add_argument(
+    "--tokenizer_name",
+    default='vinai/phobert-base',
+    type=str,
+    help="Tokenizer for model name",
 )
 
 parser.add_argument(
