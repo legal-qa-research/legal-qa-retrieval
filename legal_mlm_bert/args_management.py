@@ -4,7 +4,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--corpus_path",
-    default='legal_mlm_bert/mini_bert_corpus_path.txt',
+    default='legal_mlm_bert/medium_bert_corpus.txt',
     type=str,
     help="Path to corpus file",
 )
@@ -25,7 +25,7 @@ parser.add_argument(
 
 parser.add_argument(
     "--max_seq_length",
-    default=250,
+    default=128,
     type=int,
     help="BERT max sequence length",
 )

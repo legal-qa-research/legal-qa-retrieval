@@ -4,7 +4,7 @@ from typing import Dict
 from datasets import Split, Dataset, DatasetDict, load_dataset
 from datasets.arrow_dataset import Batch
 from transformers import DataCollatorForLanguageModeling, TrainingArguments, IntervalStrategy, Trainer, AutoTokenizer, \
-    RobertaForMaskedLM
+    AutoModelForMaskedLM
 
 from legal_mlm_bert.args_management import args
 
@@ -14,7 +14,7 @@ class BertFinetunerMLM:
         self.args = args
         self.data_path = self.args.corpus_path
         self.tokenizer = AutoTokenizer.from_pretrained(self.args.tokenizer_name, use_fast=True)
-        self.model = RobertaForMaskedLM.from_pretrained(self.args.model_name)
+        self.model = AutoModelForMaskedLM.from_pretrained(self.args.model_name)
         self.block_size = self.args.max_seq_length
         self.data_collator = DataCollatorForLanguageModeling(tokenizer=self.tokenizer, mlm_probability=0.15)
         self.num_proc_dataset = 4
@@ -65,6 +65,7 @@ class BertFinetunerMLM:
         group_dataset = tokenized_dataset.map(
             self.group_texts,
             batched=True,
+            batch_size=1000,
             num_proc=self.num_proc_dataset,
             remove_columns=tokenized_dataset["train"].column_names,
         )
