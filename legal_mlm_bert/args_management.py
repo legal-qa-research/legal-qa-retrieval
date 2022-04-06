@@ -30,4 +30,11 @@ parser.add_argument(
     help="BERT max sequence length",
 )
 
+parser.add_argument(
+    "--chk_path",
+    default=None,
+    type=str,
+    help="Checkpoint path for resuming training step",
+)
+
 args = parser.parse_args()

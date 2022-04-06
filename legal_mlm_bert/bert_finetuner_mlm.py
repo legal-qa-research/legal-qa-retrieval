@@ -92,7 +92,7 @@ class BertFinetunerMLM:
             data_collator=self.data_collator,
         )
 
-        trainer.train()
+        trainer.train(resume_from_checkpoint=self.args.chk_path)
         trainer.save_model('./output_model')
 
         eval_results = trainer.evaluate()
