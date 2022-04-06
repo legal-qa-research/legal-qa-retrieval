@@ -92,10 +92,10 @@ class BertFinetunerMLM:
         )
 
         trainer.train()
+        trainer.save_model('./output_model')
 
         eval_results = trainer.evaluate()
         print(f"Perplexity: {math.exp(eval_results['eval_loss']):.2f}")
-        trainer.save_model('./output_model')
 
 
 if __name__ == '__main__':
