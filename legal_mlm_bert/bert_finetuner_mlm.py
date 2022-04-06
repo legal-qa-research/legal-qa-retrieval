@@ -51,6 +51,7 @@ class BertFinetunerMLM:
     def build_dataset(self):
         raw_dataset: Dataset = load_dataset('text', data_files=self.data_path, split=Split.TRAIN)
         split_raw_dataset: DatasetDict = raw_dataset.train_test_split(test_size=0.1)
+        split_raw_dataset['validation'] = split_raw_dataset['test']
         # group_text_dataset = split_raw_dataset.map(
         #     self.group_raw_texts,
         #     batched=True,
