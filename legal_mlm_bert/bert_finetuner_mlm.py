@@ -77,7 +77,7 @@ class BertFinetunerMLM:
         lm_dataset = self.build_dataset()
 
         training_args = TrainingArguments(
-            output_dir="./results",
+            output_dir=self.args.output_dir,
             evaluation_strategy=IntervalStrategy.EPOCH,
             learning_rate=2e-5,
             weight_decay=0.01,

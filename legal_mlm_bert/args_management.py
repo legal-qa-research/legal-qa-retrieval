@@ -37,4 +37,11 @@ parser.add_argument(
     help="Checkpoint path for resuming training step",
 )
 
+parser.add_argument(
+    "--output_dir",
+    default='./result',
+    type=str,
+    help="Output of Model",
+)
+
 args = parser.parse_args()
