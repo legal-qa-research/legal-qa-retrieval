@@ -11,6 +11,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--tokenizer_name",
+    default='vinai/phobert-base',
+    type=str,
+    help="BERT Tokenizer name",
+)
+
+parser.add_argument(
     "--is_dev_phase",
     default=0,
     type=int,
