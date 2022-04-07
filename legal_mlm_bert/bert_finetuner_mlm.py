@@ -81,8 +81,7 @@ class BertFinetunerMLM:
             evaluation_strategy=IntervalStrategy.EPOCH,
             learning_rate=2e-5,
             weight_decay=0.01,
-            num_train_epochs=2,
-            save_total_limit=5
+            num_train_epochs=2
         )
 
         trainer = Trainer(
