@@ -35,7 +35,7 @@ class Data:
         return [InputExample(texts=[txt_ques, get_raw_from_preproc(self.article_pool.proc_text_pool[aid])],
                              label=float(aid in positive_aid)) for aid in candidate_aid]
 
-    def generate_lis_example(self, lis_qid, is_train: bool = True):
+    def generate_lis_example(self, lis_qid, is_train: bool = True) -> List[InputExample]:
         examples = []
         for qid in lis_qid:
             examples.extend(self.generate_input_examples(qid, is_train=is_train))
