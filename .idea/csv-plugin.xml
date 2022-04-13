@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="$USER_HOME$/Downloads/output_model_V6_constrast/eval/f2score_evaluation_sent_bert_triploss.csv_results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/sent_bert_triploss/output_model/eval/binary_classification_evaluation_sent_bert_triploss.csv_results.csv">
           <value>
             <Attribute>
