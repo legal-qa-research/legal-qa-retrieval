@@ -39,8 +39,11 @@ class SBertFilter:
     def start_filter_negative_pair(self):
         lis_train_qid, lis_test_qid = self.data.split_ids()
         lis_r2_example = []
+        last_len = 0
         for qid in tqdm(lis_train_qid):
             lis_r2_example.extend(self.filer_hard_negative_for_single_qid(qid))
-            print(len(lis_r2_example))
-            
+            if len(lis_r2_example) - last_len >= 100:
+                last_len = len(lis_r2_example)
+                print(last_len)
+
         pickle.dump(lis_r2_example, open(hard_neg_path, 'wb'))
