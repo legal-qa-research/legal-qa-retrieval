@@ -3,7 +3,7 @@ from typing import List
 
 import torch
 from sentence_transformers import SentenceTransformer, util, InputExample
-from tqdm import tqdm
+from tqdm.autonotebook import tqdm
 
 from sbert_hard_neg_filter.constant import hard_neg_path
 from sent_bert_triploss.data import Data
@@ -41,4 +41,6 @@ class SBertFilter:
         lis_r2_example = []
         for qid in tqdm(lis_train_qid):
             lis_r2_example.extend(self.filer_hard_negative_for_single_qid(qid))
+            if len(lis_r2_example) % 1000 == 0:
+                print(f'Length of lis_r2: {len(lis_r2_example)}')
         pickle.dump(lis_r2_example, open(hard_neg_path, 'rb'))
