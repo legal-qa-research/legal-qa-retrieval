@@ -1,7 +1,10 @@
+import pickle
 from typing import List
 
 import torch
+from torch.utils.data import DataLoader
 
+from sbert_hard_neg_filter.constant import hard_neg_path
 from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
 from sent_bert_triploss.data import Data
 from sent_bert_triploss.retrieval_evaluator_f2 import RetrievalEvaluatorF2
@@ -45,3 +48,24 @@ class TrainingProcess:
                        evaluator=evaluator, scheduler=self.args.scheduler, optimizer_params={'lr': self.args.lr},
                        checkpoint_save_total_limit=self.args.chk_limit
                        )
+
+    def start_train_r2(self):
+        train_dataloader, lis_test_examples = self.data.build_dataset()
+        evaluator = self.get_evaluator(lis_examples=lis_test_examples)
+
+        r2_train_examples: List[InputExample] = pickle.load(open(hard_neg_path, 'rb'))
+        print(f'Number of r2 training examples: {len(r2_train_examples)}')
+
+        r2_train_dataloader = DataLoader(r2_train_examples, shuffle=True, batch_size=self.args.batch_size)
+
+        self.model = self.model.to(self.device)
+
+        self.model.fit(
+            train_objectives=[(r2_train_dataloader, self.loss_fn)], epochs=self.num_epoch,
+            warmup_steps=100, show_progress_bar=True, save_best_model=True,
+            evaluation_steps=self.args.evaluation_steps,
+            checkpoint_path=self.args.chk_point,
+            output_path=self.args.output_path,
+            evaluator=evaluator, scheduler=self.args.scheduler, optimizer_params={'lr': self.args.lr},
+            checkpoint_save_total_limit=self.args.chk_limit
+        )
