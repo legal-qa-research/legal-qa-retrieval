@@ -13,7 +13,9 @@ from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
 class SBertFilter:
     def __init__(self, args):
         self.args = args
-        self.model = SentenceTransformer(model_name_or_path=args.model_name_or_path)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print('Use device: ', self.device)
+        self.model = SentenceTransformer(model_name_or_path=args.model_name_or_path, device=self.device)
         self.model.eval()
         self.data = Data(pkl_question_pool_path=pkl_question_pool, pkl_article_pool_path=pkl_article_pool,
                          pkl_cached_rel_path=pkl_cached_rel, pkl_cached_split_ids=self.args.split_ids,
