@@ -21,19 +21,27 @@ class Data:
         self.article_pool: ArticlePool = pickle.load(open(pkl_article_pool_path, 'rb'))
         self.split_ids_dict = None
         self.args = args
+        self.use_segmenter = self.args.use_segmenter == 1
         if pkl_cached_split_ids is not None and os.path.exists(pkl_cached_split_ids):
             self.split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_cached_split_ids, 'rb'))
 
     def generate_input_examples(self, qid: int, is_train: bool = True) -> List[InputExample]:
-        txt_ques = get_raw_from_preproc(self.question_pool.proc_ques_pool[qid])
+        if self.use_segmenter:
+            txt_ques = get_raw_from_preproc(self.question_pool.proc_ques_pool[qid])
+        else:
+            txt_ques = self.question_pool.lis_ques[qid].question
         candidate_aid = self.cached_rel[qid]
         positive_aid = [self.article_pool.get_position(article_identity) for article_identity in
                         self.question_pool.lis_ques[qid].relevance_articles]
         if is_train:
             candidate_aid = {*candidate_aid, *positive_aid}
 
-        return [InputExample(texts=[txt_ques, get_raw_from_preproc(self.article_pool.proc_text_pool[aid])],
-                             label=float(aid in positive_aid)) for aid in candidate_aid]
+        return [InputExample(texts=[
+            txt_ques,
+            get_raw_from_preproc(self.article_pool.proc_text_pool[aid])
+            if self.use_segmenter else self.article_pool.text_pool[aid]
+        ],
+            label=float(aid in positive_aid)) for aid in candidate_aid]
 
     def generate_lis_example(self, lis_qid, is_train: bool = True) -> List[InputExample]:
         examples = []

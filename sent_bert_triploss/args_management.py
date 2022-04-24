@@ -122,4 +122,11 @@ parser.add_argument(
     help="Top-k when inference",
 )
 
+parser.add_argument(
+    "--use_segmenter",
+    default=1,
+    type=int,
+    help="Use segmenter or not",
+)
+
 args = parser.parse_args()
