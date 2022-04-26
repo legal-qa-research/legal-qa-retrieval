@@ -30,26 +30,11 @@ class Bm25Ranker:
         return np.argsort(scores)[::-1][:top_n]
 
 
-def test_pkl_loader():
-    ap: ArticlePool = pickle.load(open('pkl_file/article_pool.pkl', 'rb'))
-    qp: QuestionPool = pickle.load(open('pkl_file/question_pool.pkl', 'rb'))
-    # br: Bm25Ranker = pickle.load(open('pkl_file/bm25_ranker.pkl', 'rb'))
-    br = Bm25Ranker(ap, qp, bm25okapi_pkl='pkl_file/bm25okapi.pkl')
-    # pickle.dump(br, open('pkl_file/bm25_ranker.pkl', 'wb'))
-    test_id = 100
-    topn = 1000
-    print(qp.proc_ques_pool[test_id])
-    topn_article = br.get_topn(test_id, topn)
-    print(topn_article)
-    rela = qp.lis_ques[test_id].relevance_articles[0]
-    print(ap.get_position(rela) in topn_article)
-
-
 def build_bm25_and_save():
-    ap: ArticlePool = pickle.load(open('pkl_file/article_pool.pkl', 'rb'))
-    qp: QuestionPool = pickle.load(open('pkl_file/question_pool.pkl', 'rb'))
+    ap: ArticlePool = pickle.load(open('pkl_file/kse_article_pool.pkl', 'rb'))
+    qp: QuestionPool = pickle.load(open('pkl_file/kse_question_pool.pkl', 'rb'))
     br = Bm25Ranker(ap, qp)
-    br.save_bm25okapi(output_path='pkl_file/bm25okapi_v2.pkl')
+    # br.save_bm25okapi(output_path='pkl_file/kse_bm25okapi_v1.pkl')
 
 
 if __name__ == '__main__':

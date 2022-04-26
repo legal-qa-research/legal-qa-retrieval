@@ -12,7 +12,7 @@ class Law:
             self.law_id = law_id
             self.articles = articles
         else:
-            self.law_id = json_law.get('law_id')
+            self.law_id = json_law.get('id')
             self.articles = []
             for json_article in json_law.get('articles'):
                 self.articles.append(Article(json_article=json_article))

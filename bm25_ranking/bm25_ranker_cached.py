@@ -4,14 +4,12 @@ from tqdm import tqdm
 
 from bm25_ranking.bm25_ranker import Bm25Ranker
 from data_processor.article_pool import ArticlePool
-from data_processor.preprocessor import Preprocessor
 from data_processor.question_pool import QuestionPool
-from utils.utilities import calculate_single_f2score, is_contained
+from utils.utilities import is_contained
 
 
 class Bm25RankerCached:
-    def __init__(self, cached_path=None, pkl_article_pool='pkl_file/article_pool.pkl',
-                 pkl_ques_pool='pkl_file/question_pool.pkl', pkl_bm25okapi='pkl_file/bm25okapi.pkl'):
+    def __init__(self, pkl_article_pool: str, pkl_ques_pool: str, pkl_bm25okapi: str, cached_path=None):
         self.ap: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
         self.qp: QuestionPool = pickle.load(open(pkl_ques_pool, 'rb'))
         self.br: Bm25Ranker = Bm25Ranker(article_pool=self.ap, ques_pool=self.qp, bm25okapi_pkl=pkl_bm25okapi)
@@ -20,7 +18,7 @@ class Bm25RankerCached:
         else:
             self.cached_rel_aid = None
 
-    def start_build_cache(self, top_n=100, cached_path='pkl_file/private_cached_rel.pkl'):
+    def start_build_cache(self, cached_path: str, top_n=100):
         cached_rel_aid = []
         for qid in tqdm(range(len(self.qp.lis_ques))):
             lis_rel_aid = self.br.get_topn(ques_id=qid, top_n=top_n)
@@ -50,7 +48,8 @@ if __name__ == '__main__':
     # private_bm_cached.start_build_cache()
     # cached_rel = pickle.load(open('pkl_file/private_cached_rel.pkl', 'rb'))
     # print(len(cached_rel))
-    bm_cached = Bm25RankerCached(pkl_bm25okapi='pkl_file/bm25okapi_v2.pkl',
-                                 pkl_ques_pool='pkl_file/question_pool.pkl')
-    # bm_cached.test_cached_rel(cached_rel_path='pkl_file/cached_rel_v2.pkl')
-    bm_cached.start_build_cache(cached_path='pkl_file/cached_rel_v2_top50.pkl', top_n=50)
+    bm_cached = Bm25RankerCached(pkl_bm25okapi='pkl_file/kse_bm25okapi_v1.pkl',
+                                 pkl_article_pool='pkl_file/kse_article_pool.pkl',
+                                 pkl_ques_pool='pkl_file/kse_question_pool.pkl')
+    bm_cached.test_cached_rel(cached_rel_path='pkl_file/kse_cached_rel_v2_top50.pkl')
+    # bm_cached.start_build_cache(cached_path='pkl_file/kse_cached_rel_v2_top50.pkl', top_n=50)

@@ -9,6 +9,6 @@ class Article:
             self.title = title
             self.text = text
         else:
-            self.article_id = json_article.get('article_id')
+            self.article_id = json_article.get('id')
             self.title = json_article.get('title')
             self.text = json_article.get('text')

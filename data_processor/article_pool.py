@@ -27,9 +27,9 @@ class ArticlePool:
             for law in self.legal_corpus.laws for article in law.articles]
 
     def run_preprocess(self, preprocessor: Preprocessor):
-        self.proc_text_pool = [preprocessor.preprocess(_txt) for _txt in
+        self.proc_text_pool = [preprocessor.preprocess(_txt) if _txt is not None else '' for _txt in
                                tqdm(self.text_pool, desc='Preprocess text')]
-        self.proc_title_pool = [preprocessor.preprocess(_txt) for _txt in
+        self.proc_title_pool = [preprocessor.preprocess(_txt) if _txt is not None else '' for _txt in
                                 tqdm(self.title_pool, desc='Preprocess title')]
 
     def get_position(self, article_identity: ArticleIdentity):
@@ -47,9 +47,9 @@ if __name__ == '__main__':
     # pickle.dump(article_pool, open('data_processor/mini_article_pool.pkl', 'wb'))
     # article_pool = pickle.load(open('data_processor/mini_article_pool.pkl', 'rb'))
 
-    lc = LegalCorpus(json_path='data/legal_corpus.json')
+    lc = LegalCorpus(json_path='data/kse_law.json')
     article_pool = ArticlePool(lc)
     preproc = Preprocessor()
     article_pool.run_preprocess(preproc)
-    pickle.dump(article_pool, open('data_processor/article_pool.pkl', 'wb'))
+    pickle.dump(article_pool, open('pkl_file/kse_article_pool.pkl', 'wb'))
     # article_pool = pickle.load(open('data_processor/article_pool.pkl', 'rb'))
