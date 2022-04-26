@@ -30,9 +30,10 @@ if __name__ == '__main__':
     # qp.run_preprocess(preproc)
     # pickle.dump(qp, open('data_processor/mini_question_pool.pkl', 'wb'))
 
-    qp = QuestionPool('data/kse_question.train.json')
+    qp = QuestionPool('data/kse_private_test_question.json')
+    print(qp.lis_ques)
     preproc = Preprocessor()
     qp.run_preprocess(preproc)
-    pickle.dump(qp, open('pkl_file/kse_question_pool.pkl', 'wb'))
+    pickle.dump(qp, open('pkl_file/kse_private_test_question_pool.pkl', 'wb'))
     # qp = pickle.load(open('data_processor/question_pool.pkl', 'rb'))
     pass
