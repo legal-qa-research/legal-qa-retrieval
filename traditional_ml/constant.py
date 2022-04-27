@@ -1,5 +1,5 @@
-# fasttext_model = 'traditional_ml/pretrained_fasttext/vnlaw_ft.bin'
-fasttext_model = 'traditional_ml/pretrained_fasttext/wiki.vi.bin'
+fasttext_model = 'traditional_ml/pretrained_fasttext/vnlaw_ft.bin'
+# fasttext_model = 'traditional_ml/pretrained_fasttext/wiki.vi.bin'
 train_data_path = 'traditional_ml/feature_data/kse_train_data_vnlaw_kse.npy'
 test_data_path = 'traditional_ml/feature_data/kse_test_data_vnlaw_kse.npy'
 train_examples_path = 'traditional_ml/raw_data/kse_train_examples.pkl'
