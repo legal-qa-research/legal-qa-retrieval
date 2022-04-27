@@ -3,6 +3,7 @@ import argparse
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
+    '-idp',
     "--is_dev_phase",
     default=0,
     required=False,
@@ -11,6 +12,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '-si',
     "--split_ids",
     default=None,
     required=False,
@@ -19,6 +21,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '-itk',
     "--infer_top_k",
     default=2,
     required=False,
@@ -27,6 +30,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '-it',
     "--infer_threshold",
     default=0,
     required=False,
