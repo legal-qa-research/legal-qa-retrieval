@@ -1,0 +1,2 @@
+,epoch,step,threshold_f2score,threshold,top_k_f2score,top_k
+0,1,1,0.7270271561567347,0.06,0.7951807227951879,1

@@ -1,23 +1,28 @@
 import pickle
-from typing import List, Tuple
+from typing import List
 
 import fasttext
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
 
 from data_processor.article_pool import ArticlePool
 from data_processor.question_pool import QuestionPool
 from traditional_ml.args_management import args
 from traditional_ml.constant import fasttext_model
+from traditional_ml.features_builder import FeaturesBuilder
 from traditional_ml.raw_input_example import RawInputExample
-from sklearn import svm
-from utils.utilities import build_private_data, get_flat_list_from_preproc, build_vec, write_submission
+
+from utils.constant import pkl_tfidf
+from utils.utilities import build_private_data, get_flat_list_from_preproc, write_submission
+from xgboost import XGBClassifier
 
 
 class RunInferProcess:
     def __init__(self, args):
         self.ques_pool, self.arti_pool, self.cached_rel = build_private_data()
         self.fasttext_model = fasttext.load_model(fasttext_model)
+        self.tfidf_vtr: TfidfVectorizer = pickle.load(open(pkl_tfidf, 'rb'))
         self.args = args
 
     def start_build_private_data_feature(self) -> List[RawInputExample]:
@@ -44,7 +49,7 @@ class RunInferProcess:
             prob = lis_raw_inp_exp[i].prob
             if prob >= self.args.infer_threshold:
                 self.ques_pool.lis_ques[qid].relevance_articles.append(self.arti_pool.article_identity[aid])
-        write_submission(lis_ques=self.ques_pool.lis_ques, fn='trad_ml_svm_threshold.json')
+        write_submission(lis_ques=self.ques_pool.lis_ques, fn='trad_ml_xgboost_threshold.json')
 
     def predict_top_k(self, lis_raw_inp_exp: List[RawInputExample]):
         self.reset_ques_pool()
@@ -61,17 +66,16 @@ class RunInferProcess:
                 self.ques_pool.lis_ques[qid].relevance_articles.pop(0)
             self.ques_pool.lis_ques[qid].relevance_articles.append(self.arti_pool.article_identity[aid])
 
-        write_submission(self.ques_pool.lis_ques, fn='trad_ml_svm_threshold.json')
+        write_submission(self.ques_pool.lis_ques, fn='trad_ml_xgboost_threshold.json')
 
     def start_infer(self):
         lis_raw_inp_exp = self.start_build_private_data_feature()
-        model: svm.SVC = pickle.load(open('traditional_ml/model_pool/svm_model.pkl', 'rb'))
+        model: XGBClassifier = pickle.load(open('pkl_file/xgb_model.pkl', 'rb'))
 
         lis_features: List[np.ndarray] = []
         for raw_ques in tqdm(lis_raw_inp_exp, desc='Building Features'):
-            features = np.concatenate((build_vec(ft=self.fasttext_model, lis_tok=raw_ques.ques),
-                                       build_vec(ft=self.fasttext_model, lis_tok=raw_ques.articles)), axis=0)
-            lis_features.append(features)
+            lis_features.append(FeaturesBuilder.cal_feature_from_inp(input_exp=raw_ques, ft=self.fasttext_model,
+                                                                     tfidf_vtr=self.tfidf_vtr))
         print('Predicting ... ')
         for i, p in enumerate(model.predict_proba(lis_features)[:, 1]):
             lis_raw_inp_exp[i].prob = p

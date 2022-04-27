@@ -52,6 +52,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/traditional_ml/kse_eval.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
