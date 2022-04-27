@@ -34,8 +34,7 @@ class FeaturesBuilder:
         return v.mean(axis=0)
 
     @staticmethod
-    def cal_feature_from_inp(input_exp: RawInputExample, ft: _FastText, tfidf_vtr: TfidfVectorizer,
-                             tfidf_matrix: csr_matrix):
+    def cal_feature_from_inp(input_exp: RawInputExample, ft: _FastText, tfidf_vtr: TfidfVectorizer):
         ques_art_tfidf = tfidf_vtr.transform([' '.join(input_exp.ques), ' '.join(input_exp.articles)])
         cosine = cosine_similarity(ques_art_tfidf)
         ques_vec = FeaturesBuilder.cal_avg_word_embed_vec(ft=ft, tfidf_matrix=ques_art_tfidf[0], tfidf_vtr=tfidf_vtr)
@@ -45,24 +44,11 @@ class FeaturesBuilder:
         label = input_exp.label
         return np.concatenate((ques_vec, art_vec, [cosine[0, 1], jaccard_score, label]), axis=0)
 
-    def build_vec(self, ft: _FastText, tfidf_matrix: csr_matrix) -> np.ndarray:
-        v = np.stack(
-            [ft.get_word_vector(self.tfidf_vtr.get_feature_names_out()[wid]) * tfidf_matrix[0, wid]
-             for wid in tfidf_matrix.nonzero()[1]])
-        # v = np.stack([ft.get_word_vector(tok) for tok in lis_tok])
-        return v.mean(axis=0)
-
     def build_feature(self, lis_examples: List[RawInputExample]) -> np.ndarray:
         data = []
         for input_exp in tqdm(lis_examples, desc='Build Features'):
-            ques_art_tfidf = self.tfidf_vtr.transform([' '.join(input_exp.ques), ' '.join(input_exp.articles)])
-            cosine = cosine_similarity(ques_art_tfidf)
-            ques_vec = self.build_vec(ft=self.fasttext_model, tfidf_matrix=ques_art_tfidf[0])
-            art_vec = self.build_vec(ft=self.fasttext_model, tfidf_matrix=ques_art_tfidf[1])
-
-            jaccard_score = calculate_jaccard_sim(u=input_exp.ques, v=input_exp.articles)
-            label = input_exp.label
-            data.append(np.concatenate((ques_vec, art_vec, [cosine[0, 1], jaccard_score, label]), axis=0))
+            data.append(FeaturesBuilder.cal_feature_from_inp(input_exp=input_exp, ft=self.fasttext_model,
+                                                             tfidf_vtr=self.tfidf_vtr))
         return np.stack(data)
 
     def start_build(self, fast_text_type: str = ''):
