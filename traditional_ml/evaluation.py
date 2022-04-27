@@ -87,7 +87,7 @@ class Evaluation:
             s0 = pd.concat([s0, s1])
             s0.to_csv(evaluation_output)
 
-    def start_eval(self, epoch: int, step: int, y_prob: List[float]):
+    def start_eval(self, epoch: int, step: int, y_prob: np.ndarray):
         assert len(self.test_examples) == len(y_prob), 'List probability is not suitable'
         eval_dict = {}
         for i, test_example in enumerate(self.test_examples):
