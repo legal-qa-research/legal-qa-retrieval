@@ -31,10 +31,10 @@ class Bm25Ranker:
 
 
 def build_bm25_and_save():
-    ap: ArticlePool = pickle.load(open('pkl_file/kse_article_pool.pkl', 'rb'))
-    qp: QuestionPool = pickle.load(open('pkl_file/kse_question_pool.pkl', 'rb'))
+    ap: ArticlePool = pickle.load(open('pkl_file/alqac_2022_article_pool.pkl', 'rb'))
+    qp: QuestionPool = pickle.load(open('pkl_file/alqac_2022_question_pool.pkl', 'rb'))
     br = Bm25Ranker(ap, qp)
-    # br.save_bm25okapi(output_path='pkl_file/kse_bm25okapi_v1.pkl')
+    br.save_bm25okapi(output_path='pkl_file/alqac_2022_bm25okapi_v1.pkl')
 
 
 if __name__ == '__main__':

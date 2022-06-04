@@ -18,8 +18,6 @@ class QuestionPool:
         self.proc_ques_pool = []
 
     def run_preprocess(self, preprocessor):
-        for ques in self.lis_ques:
-            print(ques.question)
         self.proc_ques_pool = [preprocessor.preprocess(ques.question) if ques.question is not None else ''
                                for ques in tqdm(self.lis_ques, desc='Preprocess Question')]
 
@@ -30,10 +28,10 @@ if __name__ == '__main__':
     # qp.run_preprocess(preproc)
     # pickle.dump(qp, open('data_processor/mini_question_pool.pkl', 'wb'))
 
-    qp = QuestionPool('data/kse_private_test_question.json')
-    print(qp.lis_ques)
-    preproc = Preprocessor()
-    qp.run_preprocess(preproc)
-    pickle.dump(qp, open('pkl_file/kse_private_test_question_pool.pkl', 'wb'))
-    # qp = pickle.load(open('data_processor/question_pool.pkl', 'rb'))
+    # qp = QuestionPool('data/ALQAC_2022/question.json')
+    # preproc = Preprocessor()
+    # qp.run_preprocess(preproc)
+    # pickle.dump(qp, open('pkl_file/alqac_2022_question_pool.pkl', 'wb'))
+
+    qp = pickle.load(open('pkl_file/alqac_2022_question_pool.pkl', 'rb'))
     pass

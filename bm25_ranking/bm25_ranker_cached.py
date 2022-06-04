@@ -48,8 +48,10 @@ if __name__ == '__main__':
     # private_bm_cached.start_build_cache()
     # cached_rel = pickle.load(open('pkl_file/private_cached_rel.pkl', 'rb'))
     # print(len(cached_rel))
-    bm_cached = Bm25RankerCached(pkl_bm25okapi='pkl_file/kse_bm25okapi_v1.pkl',
-                                 pkl_article_pool='pkl_file/kse_article_pool.pkl',
-                                 pkl_ques_pool='pkl_file/kse_private_test_question_pool.pkl')
-    bm_cached.test_cached_rel(cached_rel_path='pkl_file/kse_private_cached_rel_v1_top50.pkl')
-    # bm_cached.start_build_cache(cached_path='pkl_file/kse_private_cached_rel_v1_top50.pkl', top_n=50)
+
+    bm_cached = Bm25RankerCached(pkl_bm25okapi='pkl_file/alqac_2022_bm25okapi_v1.pkl',
+                                 pkl_article_pool='pkl_file/alqac_2022_article_pool.pkl',
+                                 pkl_ques_pool='pkl_file/alqac_2022_question_pool.pkl')
+    bm_cached.start_build_cache(cached_path='pkl_file/alqac_2022_cached_rel_v1_top5000.pkl', top_n=5000)
+
+    bm_cached.test_cached_rel(cached_rel_path='pkl_file/alqac_2022_cached_rel_v1_top5000.pkl')
