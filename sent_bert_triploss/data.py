@@ -16,14 +16,13 @@ from utils.utilities import get_raw_from_preproc
 class Data:
     def __init__(self, pkl_question_pool_path: str, pkl_article_pool_path: str, pkl_cached_rel_path: str,
                  pkl_cached_split_ids: str, args):
+        assert pkl_cached_split_ids is not None and os.path.exists(pkl_cached_split_ids), 'Split ids is not exist'
         self.cached_rel = pickle.load(open(pkl_cached_rel_path, 'rb'))
         self.question_pool: QuestionPool = pickle.load(open(pkl_question_pool_path, 'rb'))
         self.article_pool: ArticlePool = pickle.load(open(pkl_article_pool_path, 'rb'))
-        self.split_ids_dict = None
         self.args = args
         self.use_segmenter = self.args.use_segmenter == 1
-        if pkl_cached_split_ids is not None and os.path.exists(pkl_cached_split_ids):
-            self.split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_cached_split_ids, 'rb'))
+        self.split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_cached_split_ids, 'rb'))
 
     def generate_input_examples(self, qid: int, is_train: bool = True) -> List[InputExample]:
         if self.use_segmenter:
@@ -49,18 +48,7 @@ class Data:
             examples.extend(self.generate_input_examples(qid, is_train=is_train))
         return examples
 
-    def split_ids(self, test_size=0.2):
-        n_samples = len(self.question_pool.lis_ques)
-        if self.split_ids_dict is None:
-            train_size = 1 - test_size
-            cut_pos = int(n_samples * train_size)
-            lis_id = [i for i in range(n_samples)]
-            shuffle(lis_id)
-            self.split_ids_dict = {
-                'train': lis_id[:cut_pos],
-                'dev': lis_id[cut_pos:]
-            }
-            pickle.dump(self.split_ids_dict, open(pkl_split_ids, 'wb'))
+    def split_ids(self):
         if self.args.is_dev_phase > 0:
             return self.split_ids_dict['train'][:1], self.split_ids_dict['dev'][:1]
         else:
