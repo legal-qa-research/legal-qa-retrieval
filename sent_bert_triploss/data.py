@@ -50,7 +50,7 @@ class Data:
 
     def split_ids(self):
         if self.args.is_dev_phase > 0:
-            return self.split_ids_dict['train'][:1], self.split_ids_dict['dev'][:1]
+            return self.split_ids_dict['train'][:1], self.split_ids_dict['dev']
         else:
             return self.split_ids_dict['train'], self.split_ids_dict['dev']
 
