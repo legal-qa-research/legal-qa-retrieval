@@ -1,3 +1,4 @@
+import pickle
 from typing import List
 
 import torch
@@ -5,8 +6,12 @@ from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from tqdm import tqdm
 
+from data_processor.article_pool import ArticlePool
 from data_processor.entities.article_identity import ArticleIdentity
-from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission, build_private_data
+from data_processor.question_pool import QuestionPool
+from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
+from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission, build_private_data, \
+    calculate_f2score
 
 
 class InferProcess:
@@ -18,9 +23,8 @@ class InferProcess:
         assert self.args.load_chk_point is not None, 'Must specify the checkpoint path'
         return SentenceTransformer(model_name_or_path=self.args.load_chk_point, device=self.device).eval()
 
-    def start_inference(self, is_choose_threshold=False):
+    def infer_sample(self, ques_pool: QuestionPool, arti_pool: ArticlePool, cached_rel: List[List[int]]):
         model = self.load_model()
-        ques_pool, arti_pool, cached_rel = build_private_data()
         lis_encoded_question: List[Tensor] = model.encode(
             sentences=[get_raw_from_preproc(ques) for ques in ques_pool.proc_ques_pool])
         lis_pred_article_threshold: List[List[ArticleIdentity]] = []
@@ -33,6 +37,20 @@ class InferProcess:
                                                                        top_k=self.args.infer_top_k)
             lis_pred_article_threshold.append(threshold_result)
             lis_pred_article_top_k.append(top_k_result)
+        return lis_pred_article_threshold, lis_pred_article_top_k
+
+    def start_test(self):
+        ques_pool: QuestionPool = pickle.load(open(pkl_question_pool, 'rb'))
+        arti_pool: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
+        cached_rel = pickle.load(open(pkl_cached_rel, 'rb'))
+        lis_pred_article_threshold, lis_pred_article_top_k = self.infer_sample(ques_pool, arti_pool, cached_rel)
+        lis_true_article = [ques.relevance_articles for ques in ques_pool.lis_ques]
+        print('F2-score on threshold strategy: ', calculate_f2score(lis_pred_article_threshold, lis_true_article))
+        print('F2-score on top-k strategy: ', calculate_f2score(lis_pred_article_top_k, lis_true_article))
+
+    def start_inference(self):
+        ques_pool, arti_pool, cached_rel = build_private_data()
+        lis_pred_article_threshold, lis_pred_article_top_k = self.infer_sample(ques_pool, arti_pool, cached_rel)
 
         for i in range(len(ques_pool.lis_ques)):
             ques_pool.lis_ques[i].relevance_articles = lis_pred_article_threshold[i]
