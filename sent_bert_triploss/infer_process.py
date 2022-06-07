@@ -9,7 +9,7 @@ from tqdm import tqdm
 from data_processor.article_pool import ArticlePool
 from data_processor.entities.article_identity import ArticleIdentity
 from data_processor.question_pool import QuestionPool
-from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel
+from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel, pkl_split_ids
 from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission, build_private_data, \
     calculate_f2score
 
@@ -40,11 +40,17 @@ class InferProcess:
         return lis_pred_article_threshold, lis_pred_article_top_k
 
     def start_test(self):
+        test_ids = pickle.load(open(pkl_split_ids, 'rb'))['test']
         ques_pool: QuestionPool = pickle.load(open(pkl_question_pool, 'rb'))
-        arti_pool: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
+        subset_ques_pool = ques_pool.extract_sub_set(test_ids)
+
         cached_rel = pickle.load(open(pkl_cached_rel, 'rb'))
-        lis_pred_article_threshold, lis_pred_article_top_k = self.infer_sample(ques_pool, arti_pool, cached_rel)
-        lis_true_article = [ques.relevance_articles for ques in ques_pool.lis_ques]
+        subset_cached_rel = [cached_rel[i] for i in test_ids]
+
+        arti_pool: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
+        lis_pred_article_threshold, lis_pred_article_top_k = self.infer_sample(subset_ques_pool, arti_pool,
+                                                                               subset_cached_rel)
+        lis_true_article = [ques.relevance_articles for ques in subset_ques_pool.lis_ques]
         print('F2-score on threshold strategy: ', calculate_f2score(lis_pred_article_threshold, lis_true_article))
         print('F2-score on top-k strategy: ', calculate_f2score(lis_pred_article_top_k, lis_true_article))
 
