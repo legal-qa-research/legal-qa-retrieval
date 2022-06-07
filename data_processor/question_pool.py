@@ -38,10 +38,10 @@ if __name__ == '__main__':
     # qp.run_preprocess(preproc)
     # pickle.dump(qp, open('data_processor/mini_question_pool.pkl', 'wb'))
 
-    # qp = QuestionPool('data/ALQAC_2022/question.json')
-    # preproc = Preprocessor()
-    # qp.run_preprocess(preproc)
-    # pickle.dump(qp, open('pkl_file/alqac_2022_question_pool.pkl', 'wb'))
+    qp = QuestionPool('data/ALQAC_2022/question_clean_v1.json')
+    preproc = Preprocessor()
+    qp.run_preprocess(preproc)
+    pickle.dump(qp, open('pkl_file/alqac_2022_question_pool.pkl', 'wb'))
 
-    qp = pickle.load(open('pkl_file/alqac_2022_question_pool.pkl', 'rb'))
+    # qp = pickle.load(open('pkl_file/alqac_2022_question_pool.pkl', 'rb'))
     pass
