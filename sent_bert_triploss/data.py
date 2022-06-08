@@ -10,7 +10,7 @@ from data_processor.question_pool import QuestionPool
 from sentence_transformers import InputExample
 
 from utils.constant import pkl_split_ids
-from utils.utilities import get_raw_from_preproc
+from utils.utilities import get_raw_from_preproc, cut_off_text
 
 
 class Data:
@@ -24,7 +24,16 @@ class Data:
         self.use_segmenter = self.args.use_segmenter == 1
         self.split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_cached_split_ids, 'rb'))
 
-    def generate_input_examples(self, qid: int, is_train: bool = True) -> List[InputExample]:
+    def generate_article_text(self, aid: int, qid: int, label: float):
+        txt_article = get_raw_from_preproc(self.article_pool.proc_text_pool[aid])
+        if label != 1 or not self.args.is_narrow_article:
+            return txt_article
+        txt_answer = get_raw_from_preproc(self.question_pool.proc_answer_pool[qid])
+        cut_off_txt_article = cut_off_text(match_text=txt_answer, target_text=txt_article,
+                                           window_size=self.args.max_seq_len)
+        return cut_off_txt_article
+
+    def generate_input_examples(self, qid: int, is_train: bool = True, is_narrow: bool = False) -> List[InputExample]:
         if self.use_segmenter:
             txt_ques = get_raw_from_preproc(self.question_pool.proc_ques_pool[qid])
         else:
@@ -37,7 +46,7 @@ class Data:
 
         return [InputExample(texts=[
             txt_ques,
-            get_raw_from_preproc(self.article_pool.proc_text_pool[aid])
+            self.generate_article_text(aid, qid, float(aid in positive_aid))
             if self.use_segmenter else self.article_pool.text_pool[aid]
         ],
             label=float(aid in positive_aid)) for aid in candidate_aid]

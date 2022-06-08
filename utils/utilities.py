@@ -1,4 +1,5 @@
 import json
+import math
 import pickle
 from random import shuffle
 
@@ -25,6 +26,30 @@ def build_private_data() -> Tuple[QuestionPool, ArticlePool, List[List[int]]]:
 
 def get_raw_from_preproc(preproc):
     return ' '.join([' '.join(sent) for sent in preproc])
+
+
+def cut_off_text(match_text: str, target_text: str, window_size: int):
+    num_match_token = len(match_text.split(' '))
+    num_target_token = len(target_text.split(' '))
+    if num_target_token <= window_size:
+        return target_text
+    start_pos = target_text.find(match_text)
+    assert start_pos > -1, 'Cannot find answer in article'
+    expand_size = window_size - num_match_token
+    assert expand_size > 0, 'The expand size is larger than max_size'
+    end_pos = start_pos + num_match_token - 1
+    len_tail = num_target_token - end_pos - 1
+    len_head = start_pos
+    expected_len_each_size = math.ceil((window_size - num_match_token) / 2)
+    if len_tail < expected_len_each_size:
+        lack_len = expected_len_each_size - len_tail
+        len_head += lack_len
+        len_tail -= lack_len
+    if len_head < expected_len_each_size:
+        lack_len = expected_len_each_size - len_head
+        len_head -= lack_len
+        len_tail += lack_len
+    return target_text[start_pos - len_head: end_pos + len_tail + 1]
 
 
 def get_flat_list_from_preproc(preproc: List[List[str]]) -> List[str]:

@@ -25,6 +25,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--is_narrow_article",
+    default=0,
+    type=int,
+    help="Narrow down article content according task 2 answer",
+)
+
+parser.add_argument(
     "--max_seq_len",
     default=256,
     type=int,
