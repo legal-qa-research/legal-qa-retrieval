@@ -16,8 +16,9 @@ class QuestionPool:
     def __init__(self, ques_json_path: str = None):
         if ques_json_path is not None and os.path.exists(ques_json_path):
             lis_ques_json = json.load(open(ques_json_path, 'r'))
-            self.lis_ques = [Question(ques_json) for ques_json in lis_ques_json]
+            self.lis_ques: List[Question] = [Question(ques_json) for ques_json in lis_ques_json]
             self.proc_ques_pool = []
+            self.proc_answer_pool = []
 
     def extract_sub_set(self, lis_ids: List[int]):
         new_lis_ques = [self.lis_ques[i] for i in lis_ids]
@@ -30,6 +31,8 @@ class QuestionPool:
     def run_preprocess(self, preprocessor):
         self.proc_ques_pool = [preprocessor.preprocess(ques.question) if ques.question is not None else ''
                                for ques in tqdm(self.lis_ques, desc='Preprocess Question')]
+        self.proc_answer_pool = [preprocessor.preprocess(ques.answer) for ques in
+                                 tqdm(self.lis_ques, desc='Preprocess answer')]
 
 
 if __name__ == '__main__':
@@ -38,10 +41,10 @@ if __name__ == '__main__':
     # qp.run_preprocess(preproc)
     # pickle.dump(qp, open('data_processor/mini_question_pool.pkl', 'wb'))
 
-    qp = QuestionPool('data/ALQAC_2022/question_clean_v2.json')
-    preproc = Preprocessor()
-    qp.run_preprocess(preproc)
-    pickle.dump(qp, open('pkl_file/alqac_2022_question_pool.pkl', 'wb'))
+    # qp = QuestionPool('data/ALQAC_2022/question_clean_v2.json')
+    # preproc = Preprocessor()
+    # qp.run_preprocess(preproc)
+    # pickle.dump(qp, open('pkl_file/alqac_2022_question_pool.pkl', 'wb'))
 
-    # qp = pickle.load(open('pkl_file/alqac_2022_question_pool.pkl', 'rb'))
+    qp = pickle.load(open('pkl_file/alqac_2022_question_pool.pkl', 'rb'))
     pass

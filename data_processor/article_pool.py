@@ -47,10 +47,11 @@ if __name__ == '__main__':
     # pickle.dump(article_pool, open('data_processor/mini_article_pool.pkl', 'wb'))
     # article_pool = pickle.load(open('data_processor/mini_article_pool.pkl', 'rb'))
 
-    lc = LegalCorpus(json_path='data/ALQAC_2022/law.json')
-    article_pool = ArticlePool(lc)
-    preproc = Preprocessor()
-    article_pool.run_preprocess(preproc)
-    pickle.dump(article_pool, open('pkl_file/alqac_2022_article_pool.pkl', 'wb'))
+    # lc = LegalCorpus(json_path='data/ALQAC_2022/law.json')
+    # article_pool = ArticlePool(lc)
+    # preproc = Preprocessor()
+    # article_pool.run_preprocess(preproc)
+    # pickle.dump(article_pool, open('pkl_file/alqac_2022_article_pool.pkl', 'wb'))
 
-    # article_pool = pickle.load(open('pkl_file/alqac_2022_article_pool.pkl', 'rb'))
+    article_pool = pickle.load(open('pkl_file/alqac_2022_article_pool.pkl', 'rb'))
+    pass
