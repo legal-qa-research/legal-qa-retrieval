@@ -7,6 +7,7 @@ class Question:
     relevance_articles: List[ArticleIdentity]
     question_id: str
     question: str
+    answer: str
 
     def __init__(self, question_json: dict):
         self.question_id = question_json.get('question_id')
@@ -16,3 +17,6 @@ class Question:
                                        for article_identity_json in question_json.get('relevant_articles')]
         else:
             self.relevance_articles = []
+
+        if question_json.get('answer') is not None:
+            self.answer = question_json.get('answer')
