@@ -26,11 +26,14 @@ class Data:
 
     def generate_article_text(self, aid: int, qid: int, label: float):
         txt_article = get_raw_from_preproc(self.article_pool.proc_text_pool[aid])
-        if label != 1 or not self.args.is_narrow_article > 0:
+        if label != 1 or self.args.is_narrow_article == 0:
             return txt_article
         txt_answer = get_raw_from_preproc(self.question_pool.proc_answer_pool[qid])
-        cut_off_txt_article = cut_off_text(match_text=txt_answer, target_text=txt_article,
-                                           window_size=self.args.max_seq_len)
+        try:
+            cut_off_txt_article = cut_off_text(match_text=txt_answer, target_text=txt_article,
+                                               window_size=self.args.max_seq_len)
+        except Exception:
+            cut_off_txt_article = txt_article
         return cut_off_txt_article
 
     def generate_input_examples(self, qid: int, is_train: bool = True, is_narrow: bool = False) -> List[InputExample]:
