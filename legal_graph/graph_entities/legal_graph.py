@@ -20,3 +20,9 @@ class LegalGraph:
         exist_node: List[LegalNode] = [node for node in self.lis_node if node == node_1 or node == node_2]
         assert len(exist_node) == 2, f'Number of exist node is {len(exist_node)}, which is not reasonable. It must be 2'
         node_1.add_neighbor(node_2)
+
+    def count_vertex(self):
+        cnt_vertex = 0
+        for node in self.lis_node:
+            cnt_vertex += len(node.lis_neighbor)
+        return cnt_vertex

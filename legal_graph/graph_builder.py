@@ -46,10 +46,10 @@ class GraphBuilder:
                             ArticleIdentity({'law_id': law_id, 'article_id': same_law_aid}))
                         self.legal_graph.add_one_way_vertex(recent_node, target_node)
 
-
-
         print('Refer article: ', cnt_refer_article)
         print('Same law refer article: ', cnt_same_law_refer)
+        print('Number of vertex in graph: ', self.legal_graph.count_vertex())
+        pickle.dump(self.legal_graph, open('pkl_file/alqac_2022_legal_graph.pkl', 'wb'))
 
 
 if __name__ == '__main__':
