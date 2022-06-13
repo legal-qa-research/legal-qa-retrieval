@@ -4,7 +4,7 @@ from data_processor.article_pool import ArticlePool
 from data_processor.entities.article_identity import ArticleIdentity
 from legal_graph.graph_entities.legal_graph import LegalGraph
 from legal_graph.graph_entities.legal_node import LegalNode
-from utils.constant import pkl_article_pool
+from utils.constant import pkl_article_pool, pkl_legal_graph
 from utils.utilities import get_raw_from_preproc, get_flat_list_from_preproc
 import re
 from tqdm import tqdm
@@ -49,7 +49,7 @@ class GraphBuilder:
         print('Refer article: ', cnt_refer_article)
         print('Same law refer article: ', cnt_same_law_refer)
         print('Number of vertex in graph: ', self.legal_graph.count_vertex())
-        pickle.dump(self.legal_graph, open('pkl_file/alqac_2022_legal_graph.pkl', 'wb'))
+        pickle.dump(self.legal_graph, open(pkl_legal_graph, 'wb'))
 
 
 if __name__ == '__main__':
