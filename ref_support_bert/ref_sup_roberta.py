@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 from torch import nn, Tensor
 from torch.nn import CrossEntropyLoss
