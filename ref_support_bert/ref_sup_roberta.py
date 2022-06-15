@@ -60,6 +60,6 @@ if __name__ == '__main__':
 
     model = RefSupRoberta(roberta=core_model, config=core_config)
 
-    inp = tokenizer('tôi là sinh_viên trường Đại học Công Nghệ.', padding='max_length', return_tensors='pt')
+    inp = tokenizer(text='tôi là sinh_viên trường Đại học Công Nghệ.', text_pair='Tôi học khoa khoa học máy tính.',
+                    padding='max_length', return_tensors='pt', add_special_tokens=True)
     output_model = model.forward(model_input=inp, labels=torch.tensor([1]))
-    pass
