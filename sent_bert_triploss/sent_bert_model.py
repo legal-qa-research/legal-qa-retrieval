@@ -13,6 +13,6 @@ def get_sent_bert_model(load_chk_point_path) -> SentenceTransformer:
                                                   tokenizer_name_or_path=args.tokenizer_name)
 
         pooling_model = models.Pooling(word_embedding_dimension=bert_embedding_model.get_word_embedding_dimension(),
-                                       pooling_mode_cls_token=True)
+                                       pooling_mode='cls')
 
         return SentenceTransformer(modules=[bert_embedding_model, pooling_model])
