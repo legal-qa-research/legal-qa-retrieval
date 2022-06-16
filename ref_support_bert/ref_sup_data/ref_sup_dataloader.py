@@ -28,7 +28,7 @@ def get_ref_sup_dataloader():
     with torch.no_grad():
         for sample in ref_sup_sample:
             lis_text: List[str] = [sample.query_text] + [article for article in sample.lis_article]
-            lis_encode_vec: List[Tensor] = encoder.encode(lis_text, convert_to_tensor=True, convert_to_numpy=False)
-            lis_data.append(pack_sequence(lis_encode_vec))
+            lis_encode_vec: Tensor = encoder.encode(lis_text, convert_to_tensor=True, convert_to_numpy=False)
+            lis_data.append(pack_sequence([lis_encode_vec]))
     ref_sup_dataset = RefSupDataset(lis_data)
     return DataLoader(dataset=ref_sup_dataset, batch_size=None, sampler=None)
