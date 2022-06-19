@@ -29,9 +29,6 @@ class RefSupModel(LightningModule):
         output = self.linear_relu_stack.forward(embed_output)
         return output
 
-    def train_dataloader(self) -> TRAIN_DATALOADERS:
-        return get_ref_sup_dataloader()
-
     def training_step(self, sample, sample_idx) -> STEP_OUTPUT:
         model_input, label = sample
         model_predict = self.forward(model_input)

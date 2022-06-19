@@ -75,7 +75,7 @@ class SampleGenerator:
 
     def __split_ids(self):
         if args.is_dev_phase > 0:
-            return self.__split_ids_dict['train'][:1], self.__split_ids_dict['dev']
+            return self.__split_ids_dict['train'][:1], self.__split_ids_dict['dev'][:1]
         else:
             return self.__split_ids_dict['train'], self.__split_ids_dict['dev']
 
