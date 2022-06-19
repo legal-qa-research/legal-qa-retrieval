@@ -5,7 +5,7 @@ from sentence_transformers import SentenceTransformer
 from torch import Tensor
 from torch.nn.utils.rnn import PackedSequence, pack_sequence
 from torch.utils.data import Dataset, DataLoader
-from ref_support_bert.ref_sup_data.ref_sup_sample import RefSupSample, create_lis_sample
+from ref_support_bert.ref_sup_data.ref_sup_sample import RefSupSample
 from ref_support_bert.args_management import args
 
 
@@ -20,8 +20,8 @@ class RefSupDataset(Dataset):
         return len(self.lis_sample)
 
 
-def get_ref_sup_dataloader():
-    ref_sup_sample = create_lis_sample()
+def get_ref_sup_dataloader(ref_sup_sample: List[RefSupSample]):
+    # ref_sup_sample = create_lis_sample()
     device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
     encoder = SentenceTransformer(model_name_or_path=args.load_chk_point, device=device)
     lis_data: List[Tuple[PackedSequence, float]] = []
