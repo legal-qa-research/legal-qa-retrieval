@@ -20,6 +20,7 @@ class RefSupArgument:
     root_dir: str
     n_gpus: int
     resume_checkpoint: str
+    pretrained_sent_bert: str
 
 
 parser = argparse.ArgumentParser()
@@ -36,6 +37,13 @@ parser.add_argument(
     default='vinai/phobert-base',
     type=str,
     help="BERT Tokenizer name",
+)
+
+parser.add_argument(
+    "--pretrained_sent_bert",
+    default=None,
+    type=str,
+    help="Path of pretrained sent bert",
 )
 
 parser.add_argument(
