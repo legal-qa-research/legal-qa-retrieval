@@ -6,12 +6,12 @@ from torch.nn.utils.rnn import PackedSequence
 from pytorch_lightning.core.lightning import LightningModule
 from torch.nn.functional import cross_entropy
 
-from ref_support_bert.ref_sup_data.ref_sup_dataloader import get_ref_sup_dataloader
+from ref_support_bert.args_management import RefSupArgument
 from transformers.optimization import AdamW
 
 
 class RefSupModel(LightningModule):
-    def __init__(self, input_size, args):
+    def __init__(self, input_size, args: RefSupArgument):
         super(RefSupModel, self).__init__()
         self.args = args
         self.recurrent_layer = GRU(input_size=input_size, hidden_size=input_size, num_layers=2)
