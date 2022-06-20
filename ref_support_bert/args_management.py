@@ -1,5 +1,27 @@
 import argparse
 
+
+class RefSupArgument:
+    model_name: str
+    tokenizer_name: str
+    embed_size: int
+    is_dev_phase: int
+    is_narrow_article: int
+    max_seq_len: int
+    evaluation_steps: int
+    batch_size: int
+    lr: float
+    n_epochs: int
+    scheduler: str
+    infer_threshold: float
+    infer_top_k: int
+    split_ids: str
+    use_segmenter: int
+    root_dir: str
+    n_gpus: int
+    resume_checkpoint: str
+
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
@@ -73,28 +95,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--output_path",
-    default='sent_bert_triploss/output_model',
-    type=str,
-    help='Path of output model',
-)
-
-parser.add_argument(
-    "--chk_point",
-    default='sent_bert_triploss/chkpoint',
-    type=str,
-    help="Checkpoint path",
-)
-
-parser.add_argument(
-    "--load_chk_point",
-    default=None,
-    type=str,
-    help="Load checkpoint path for continue training",
-)
-
-parser.add_argument(
-    "--threshold",
+    "--infer_threshold",
     default=0.5,
     type=float,
     help="Threshold of prediction",
@@ -105,20 +106,6 @@ parser.add_argument(
     default=None,
     type=str,
     help="Split ids cached file",
-)
-
-parser.add_argument(
-    "--chk_limit",
-    default=5,
-    type=int,
-    help="Maximum number of checkpoint to save",
-)
-
-parser.add_argument(
-    "--use_contrast_loss_fn",
-    default=1,
-    type=int,
-    help="Use contrast loss or not",
 )
 
 parser.add_argument(
@@ -142,4 +129,26 @@ parser.add_argument(
     help="Root dir for save checkpoint",
 )
 
-args = parser.parse_args()
+parser.add_argument(
+    "--n_gpus",
+    default=3,
+    type=int,
+    help="Number of GPUS for training",
+)
+
+parser.add_argument(
+    "--resume_checkpoint",
+    default=None,
+    type=str,
+    help="Reusume training from checkpoint",
+)
+
+parser.add_argument(
+    "--embed_size",
+    default=768,
+    type=int,
+    help="Embedding size of sentence",
+)
+
+args = parser.parse_args(namespace=RefSupArgument())
+pass
