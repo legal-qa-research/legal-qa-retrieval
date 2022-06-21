@@ -11,6 +11,30 @@ from ref_support_bert.args_management import RefSupArgument
 from utils.evaluating_submission import ESP
 
 
+def count_predict(predict, label):
+    cnt_true_positive = 0
+    total_pred_positive = 0
+    total_positive = 0
+
+    for i in range(len(predict)):
+        pred_label = float(predict[i][0] < predict[i][1])
+        true_label = label[i]
+        if true_label == 1:
+            if pred_label == 1:
+                cnt_true_positive += 1
+            total_positive += 1
+        if pred_label == 1:
+            total_pred_positive += 1
+
+    return cnt_true_positive, total_positive, total_pred_positive
+
+
+def cal_f2score(true_pos, total_positive, total_pred_positive):
+    precision = true_pos / (total_pred_positive + ESP)
+    recall = true_pos / (total_positive + ESP)
+    return (5 * precision * recall) / (4 * precision + recall + ESP)
+
+
 class RefSupModel(LightningModule):
     def __init__(self, input_size, args: RefSupArgument):
         super(RefSupModel, self).__init__()
@@ -45,30 +69,7 @@ class RefSupModel(LightningModule):
         model_predict = self.forward(model_input).to(torch.device('cpu'))
         return {'dataloader_idx': dataloader_idx, 'predict': model_predict, 'label': label}
 
-    def count_predict(self, predict, label):
-        cnt_true_positive = 0
-        total_pred_positive = 0
-        total_positive = 0
-
-        for i in range(len(predict)):
-            pred_label = float(predict[i][0] < predict[i][1])
-            true_label = label[i]
-            if true_label == 1:
-                if pred_label == 1:
-                    cnt_true_positive += 1
-                total_positive += 1
-            if pred_label == 1:
-                total_pred_positive += 1
-
-        return cnt_true_positive, total_positive, total_pred_positive
-
-    def cal_f2score(self, true_pos, total_positive, total_pred_positive):
-        precision = true_pos / (total_pred_positive + ESP)
-        recall = true_pos / (total_positive + ESP)
-        return (5 * precision * recall) / (4 * precision + recall + ESP)
-
     def validation_epoch_end(self, outputs: EPOCH_OUTPUT) -> None:
-        f2score = {}
         total_f2score = 0
 
         for list_batch_output in outputs:
@@ -78,12 +79,11 @@ class RefSupModel(LightningModule):
             for batch_output in list_batch_output:
                 model_predict = batch_output.get('predict')
                 label = batch_output.get('label')
-                true_positive, total_positive, total_pred_positive = self.count_predict(predict=model_predict,
-                                                                                        label=label)
+                true_positive, total_positive, total_pred_positive = count_predict(predict=model_predict, label=label)
                 cnt_true_positive += true_positive
                 cnt_total_positive += total_positive
                 cnt_total_pred_positive += total_pred_positive
-            total_f2score += self.cal_f2score(cnt_true_positive, cnt_total_positive, cnt_total_pred_positive)
+            total_f2score += cal_f2score(cnt_true_positive, cnt_total_positive, cnt_total_pred_positive)
         avg_f2score = total_f2score / len(outputs)
         self.log('F2-score', avg_f2score, on_epoch=True, prog_bar=True, logger=True)
 

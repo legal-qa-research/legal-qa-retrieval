@@ -2,8 +2,7 @@ import torch.cuda
 from pytorch_lightning import Trainer
 
 from ref_support_bert.args_management import args
-from ref_support_bert.ref_sup_data.ref_sup_dataloader import get_ref_sup_dataloader, DataLoaderGenerator
-from ref_support_bert.ref_sup_data.ref_sup_sample import SampleGenerator
+from ref_support_bert.ref_sup_data.ref_sup_dataloader import DataLoaderGenerator
 from ref_support_bert.ref_sup_modeling.modeling import RefSupModel
 
 from data_processor.article_pool import ArticlePool
