@@ -100,14 +100,14 @@ class RefSupModel(LightningModule):
 
     def training_step(self, sample, sample_idx) -> STEP_OUTPUT:
         model_input, label = sample
-        model_predict = torch.flatten(self.forward(model_input).to(torch.device('cpu')))
+        model_predict = torch.flatten(self.forward(model_input)).to(torch.device('cpu'))
         loss = binary_cross_entropy(input=model_predict, target=label)
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx, dataloader_idx=None):
         model_input, label = batch
-        model_predict = torch.flatten(self.forward(model_input).to(torch.device('cpu')))
+        model_predict = torch.flatten(self.forward(model_input)).to(torch.device('cpu'))
         return {'dataloader_idx': dataloader_idx, 'predict': model_predict, 'label': label}
 
     def validation_epoch_end(self, outputs: EPOCH_OUTPUT) -> None:
