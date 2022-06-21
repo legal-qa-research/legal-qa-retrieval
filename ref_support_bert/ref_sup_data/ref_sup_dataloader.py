@@ -28,7 +28,7 @@ def custom_collate_fn(batch: List[Tuple[Tensor, float]]):
 
 def get_ref_sup_dataloader(ref_sup_sample: List[RefSupSample]):
     # ref_sup_sample = create_lis_sample()
-    device: str = 'cuda:1' if torch.cuda.is_available() else 'cpu'
+    device: str = 'cuda:2' if torch.cuda.is_available() else 'cpu'
     encoder = SentenceTransformer(model_name_or_path=args.pretrained_sent_bert, device=device)
     lis_data: List[Tuple[Tensor, float]] = []
     with torch.no_grad():
@@ -36,6 +36,7 @@ def get_ref_sup_dataloader(ref_sup_sample: List[RefSupSample]):
         for sample in ref_sup_sample:
             lis_text: List[str] = [sample.query_text] + [article for article in sample.lis_article]
             lis_encode_vec: Tensor = encoder.encode(lis_text, convert_to_tensor=True, convert_to_numpy=False)
+            lis_encode_vec: Tensor = lis_encode_vec.to(torch.device('cpu'))
             lis_data.append((lis_encode_vec, float(sample.label)))
     ref_sup_dataset = RefSupDataset(lis_data)
     del encoder

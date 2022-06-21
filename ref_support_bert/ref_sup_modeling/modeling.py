@@ -33,7 +33,7 @@ class RefSupModel(LightningModule):
 
     def training_step(self, sample, sample_idx) -> STEP_OUTPUT:
         model_input, label = sample
-        model_predict = self.forward(model_input)
+        model_predict = self.forward(model_input).to(torch.device('cpu'))
         label_vec = torch.stack(
             [torch.as_tensor([float(spec_label == 0), float(spec_label == 1)]) for spec_label in label])
         loss = cross_entropy(input=model_predict, target=label_vec)
@@ -42,7 +42,7 @@ class RefSupModel(LightningModule):
 
     def validation_step(self, batch, batch_idx, dataloader_idx=None):
         model_input, label = batch
-        model_predict = self.forward(model_input)
+        model_predict = self.forward(model_input).to(torch.device('cpu'))
         return {'dataloader_idx': dataloader_idx, 'predict': model_predict, 'label': label}
 
     def count_predict(self, predict, label):
