@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import torch
 from sentence_transformers import SentenceTransformer
@@ -31,13 +31,20 @@ def get_ref_sup_dataloader(ref_sup_sample: List[RefSupSample]):
     device: str = 'cuda:2' if torch.cuda.is_available() else 'cpu'
     encoder = SentenceTransformer(model_name_or_path=args.pretrained_sent_bert, device=device)
     lis_data: List[Tuple[Tensor, float]] = []
+    cache_dict: Dict[str, Tensor] = {}
     with torch.no_grad():
         encoder.eval()
         for sample in ref_sup_sample:
             lis_text: List[str] = [sample.query_text] + [article for article in sample.lis_article]
-            lis_encode_vec: Tensor = encoder.encode(lis_text, convert_to_tensor=True, convert_to_numpy=False)
-            lis_encode_vec: Tensor = lis_encode_vec.to(torch.device('cpu'))
-            lis_data.append((lis_encode_vec, float(sample.label)))
+            need_encode_text: List[str] = [t for t in lis_text if t not in cache_dict.keys()]
+            if len(need_encode_text) > 0:
+                lis_encode_vec: Tensor = encoder.encode(need_encode_text, convert_to_tensor=True,
+                                                        convert_to_numpy=False)
+                lis_encode_vec: Tensor = lis_encode_vec.to(torch.device('cpu'))
+                for i, t in enumerate(need_encode_text):
+                    cache_dict[t] = lis_encode_vec[i]
+            seq_encode_vec = torch.stack([cache_dict[t] for t in lis_text])
+            lis_data.append((seq_encode_vec, float(sample.label)))
     ref_sup_dataset = RefSupDataset(lis_data)
     del encoder
     # return DataLoader(dataset=ref_sup_dataset, batch_size=None, sampler=None)
