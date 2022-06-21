@@ -2,7 +2,7 @@ import torch.cuda
 from pytorch_lightning import Trainer
 
 from ref_support_bert.args_management import args
-from ref_support_bert.ref_sup_data.ref_sup_dataloader import get_ref_sup_dataloader
+from ref_support_bert.ref_sup_data.ref_sup_dataloader import get_ref_sup_dataloader, DataLoaderGenerator
 from ref_support_bert.ref_sup_data.ref_sup_sample import SampleGenerator
 from ref_support_bert.ref_sup_modeling.modeling import RefSupModel
 
@@ -19,12 +19,11 @@ if __name__ == '__main__':
         gpus = args.n_gpus
         auto_select_gpus = True
 
-    sample_generator = SampleGenerator()
+    dataloader_creator = DataLoaderGenerator()
+    train_dataloader = dataloader_creator.get_train_dataloader()
+    lis_test_dataloader = dataloader_creator.get_lis_test_dataloader()
 
     model = RefSupModel(input_size=args.embed_size, args=args)
     trainer = Trainer(accelerator=device, max_epochs=args.n_epochs, default_root_dir=args.root_dir, gpus=gpus,
                       auto_select_gpus=auto_select_gpus, log_every_n_steps=2)
-    trainer.fit(model=model, train_dataloaders=get_ref_sup_dataloader(sample_generator.train_examples),
-                val_dataloaders=[get_ref_sup_dataloader(test_batch) for test_batch in sample_generator.test_examples])
-
-    pass
+    trainer.fit(model=model, train_dataloaders=train_dataloader, val_dataloaders=lis_test_dataloader)
