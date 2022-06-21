@@ -1,7 +1,5 @@
-from typing import Dict
-
 import torch
-from pytorch_lightning.utilities.types import STEP_OUTPUT, TRAIN_DATALOADERS, EVAL_DATALOADERS, EPOCH_OUTPUT
+from pytorch_lightning.utilities.types import STEP_OUTPUT, EPOCH_OUTPUT
 from torch import nn, Tensor
 from torch.nn import GRU
 from pytorch_lightning.core.lightning import LightningModule
@@ -10,8 +8,6 @@ from torch.optim import AdamW
 
 from ref_support_bert.args_management import RefSupArgument
 
-from ref_support_bert.ref_sup_data.ref_sup_dataloader import get_ref_sup_dataloader
-from ref_support_bert.ref_sup_data.ref_sup_sample import SampleGenerator
 from utils.evaluating_submission import ESP
 
 
@@ -28,17 +24,6 @@ class RefSupModel(LightningModule):
             nn.Linear(512, 2)
         )
         self.sample_generator = None
-
-    def prepare_data(self) -> None:
-        self.sample_generator = SampleGenerator()
-
-    def train_dataloader(self) -> TRAIN_DATALOADERS:
-        assert self.sample_generator is not None, 'Data is not prepared'
-        return get_ref_sup_dataloader(self.sample_generator.train_examples)
-
-    def val_dataloader(self) -> EVAL_DATALOADERS:
-        assert self.sample_generator is not None, 'Data is not prepared'
-        return [get_ref_sup_dataloader(test_batch) for test_batch in self.sample_generator.test_examples]
 
     def forward(self, model_input: Tensor) -> Tensor:
         gru_output, gru_hidden = self.recurrent_layer.forward(input=model_input)
@@ -101,27 +86,6 @@ class RefSupModel(LightningModule):
             total_f2score += self.cal_f2score(cnt_true_positive, cnt_total_positive, cnt_total_pred_positive)
         avg_f2score = total_f2score / len(outputs)
         self.log('F2-score', avg_f2score, on_epoch=True, prog_bar=True, logger=True)
-
-        # for output in outputs:
-        #     dataloader_idx = output.get('dataloader_idx')
-        #     if dataloader_idx is None:
-        #         dataloader_idx = 0
-        #     model_predict = output.get('predict')
-        #     label = output.get('label')
-        #     true_positive, total_positive, total_pred_positive = self.count_predict(predict=model_predict, label=label)
-        #     if dataloader_idx in f2score.keys():
-        #         f2score[dataloader_idx]['true_pos'] += true_positive
-        #         f2score[dataloader_idx]['total_positive'] += total_positive
-        #         f2score[dataloader_idx]['total_pred_positive'] += total_pred_positive
-        #     else:
-        #         f2score[dataloader_idx]['true_positive'] = true_positive
-        #         f2score[dataloader_idx]['total_positive'] = total_positive
-        #         f2score[dataloader_idx]['total_pred_positive'] = total_pred_positive
-        #
-        # total_f2score = 0
-        # cnt_ques = len(f2score.keys())
-        # for dataloader_idx in f2score.keys():
-        #     total_f2score += self.cal_f2score(f2score[dataloader_idx])
 
     def configure_optimizers(self):
         return AdamW(params=self.parameters(), lr=self.args.lr)

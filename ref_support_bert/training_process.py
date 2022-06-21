@@ -18,9 +18,13 @@ if __name__ == '__main__':
         device = 'gpu'
         gpus = args.n_gpus
         auto_select_gpus = True
+
+    sample_generator = SampleGenerator()
+
     model = RefSupModel(input_size=args.embed_size, args=args)
     trainer = Trainer(accelerator=device, max_epochs=args.n_epochs, default_root_dir=args.root_dir, gpus=gpus,
                       auto_select_gpus=auto_select_gpus, log_every_n_steps=2)
-    trainer.fit(model=model)
+    trainer.fit(model=model, train_dataloaders=get_ref_sup_dataloader(sample_generator.train_examples),
+                val_dataloaders=[get_ref_sup_dataloader(test_batch) for test_batch in sample_generator.test_examples])
 
     pass
