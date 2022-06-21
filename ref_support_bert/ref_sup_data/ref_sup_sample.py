@@ -1,5 +1,5 @@
 import pickle
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union, Optional
 
 from tqdm import tqdm
 
@@ -22,6 +22,10 @@ class RefSupSample:
         self.label: float = 0.0
 
 
+TEST_LIST_SAMPLE = List[List[RefSupSample]]
+TRAIN_LIST_SAMPLE = List[RefSupSample]
+
+
 class SampleGenerator:
     def __init__(self):
         self.__question_pool: QuestionPool = pickle.load(open(pkl_question_pool, 'rb'))
@@ -30,8 +34,8 @@ class SampleGenerator:
         self.__split_ids_dict: Dict[str, List[int]] = pickle.load(open(pkl_split_ids, 'rb'))
         self.__cached_rel = pickle.load(open(pkl_cached_rel, 'rb'))
         self.__legal_graph: LegalGraph = pickle.load(open(pkl_legal_graph, 'rb'))
-        self.train_examples: List[RefSupSample] = []
-        self.test_examples: List[RefSupSample] = []
+        self.train_examples: TRAIN_LIST_SAMPLE = []
+        self.test_examples: TEST_LIST_SAMPLE = []
         self.__generate_lis_sample()
 
     def __generate_sample_with_qid(self, qid: int, is_train=True) -> List[RefSupSample]:
@@ -59,7 +63,7 @@ class SampleGenerator:
             # Tạo sample bao gồm text của tất cả các article refer và được refer
             sample = RefSupSample()
             sample.query_text = ques_text
-            for node in [recent_node, *neighbor_node]:
+            for node in [recent_node, *neighbor_node][:10]:
                 node_aid = self.__article_pool.get_position(node.identity)
                 sample.lis_article.append(
                     get_text(self.__article_pool.text_pool[node_aid], self.__article_pool.proc_text_pool[node_aid]))
@@ -67,22 +71,28 @@ class SampleGenerator:
             lis_sample.append(sample)
         return lis_sample
 
-    def __generate_lis_example(self, lis_qid: List[int], is_train: bool = True) -> List[RefSupSample]:
-        examples: List[RefSupSample] = []
-        for qid in tqdm(lis_qid, desc=f'Generate sample for phase {"train" if is_train else "test"}'):
-            examples.extend(self.__generate_sample_with_qid(qid, is_train=is_train))
+    def __generate_lis_train_example(self, lis_qid: List[int]) -> TRAIN_LIST_SAMPLE:
+        examples: TRAIN_LIST_SAMPLE = []
+        for qid in tqdm(lis_qid, desc=f'Generate sample for phase train'):
+            examples.extend(self.__generate_sample_with_qid(qid, is_train=True))
+        return examples
+
+    def __generate_lis_test_example(self, lis_qid: List[int]) -> TEST_LIST_SAMPLE:
+        examples: TEST_LIST_SAMPLE = []
+        for qid in tqdm(lis_qid, desc=f'Generate sample for phase train'):
+            examples.append(self.__generate_sample_with_qid(qid, is_train=False))
         return examples
 
     def __split_ids(self):
         if args.is_dev_phase > 0:
-            return self.__split_ids_dict['train'][:1], self.__split_ids_dict['dev'][:1]
+            return self.__split_ids_dict['train'][:1], self.__split_ids_dict['dev'][:2]
         else:
             return self.__split_ids_dict['train'], self.__split_ids_dict['dev']
 
     def __generate_lis_sample(self):
         lis_train_qid, lis_test_qid = self.__split_ids()
-        self.train_examples = self.__generate_lis_example(lis_train_qid, is_train=True)
-        self.test_examples = self.__generate_lis_example(lis_test_qid, is_train=False)
+        self.train_examples = self.__generate_lis_train_example(lis_train_qid)
+        self.test_examples = self.__generate_lis_test_example(lis_test_qid)
 
 
 if __name__ == '__main__':
