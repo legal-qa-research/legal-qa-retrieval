@@ -255,7 +255,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
             for ques in ques_pool:
                 ques_labels = label_dict[ques]
                 ques_scores = scores_dict[ques]
-                highest_score = arg_sort_scores_dict[ques][-1]
+                highest_score = ques_scores[arg_sort_scores_dict[ques][-1]]
                 ques_pred_label = [int(calculate_percent_diff(highest_score, s) <= trail_threshold)
                                    for s in ques_scores]
                 total_f2 += RetrievalEvaluatorF2.calculate_f2score(pred_label=ques_pred_label, true_label=ques_labels)
