@@ -31,8 +31,9 @@ class QuestionPool:
     def run_preprocess(self, preprocessor):
         self.proc_ques_pool = [preprocessor.preprocess(ques.question) if ques.question is not None else ''
                                for ques in tqdm(self.lis_ques, desc='Preprocess Question')]
-        self.proc_answer_pool = [preprocessor.preprocess(ques.answer) for ques in
-                                 tqdm(self.lis_ques, desc='Preprocess answer')]
+        self.proc_answer_pool = None
+        self.proc_answer_pool = [preprocessor.preprocess(ques.answer) if ques.answer is not None else ''
+                                 for ques in tqdm(self.lis_ques, desc='Preprocess answer')]
 
 
 if __name__ == '__main__':
@@ -41,10 +42,10 @@ if __name__ == '__main__':
     # qp.run_preprocess(preproc)
     # pickle.dump(qp, open('data_processor/mini_question_pool.pkl', 'wb'))
 
-    # qp = QuestionPool('data/ALQAC_2022/question_clean_v2.json')
-    # preproc = Preprocessor()
-    # qp.run_preprocess(preproc)
-    # pickle.dump(qp, open('pkl_file/alqac_2022_question_pool.pkl', 'wb'))
+    qp = QuestionPool('data/ALQAC_2022/ALQAC_test_release.json')
+    preproc = Preprocessor()
+    qp.run_preprocess(preproc)
+    pickle.dump(qp, open('pkl_file/alqac_2022_test_question_pool.pkl', 'wb'))
 
-    qp = pickle.load(open('pkl_file/alqac_2022_question_pool.pkl', 'rb'))
+    qp = pickle.load(open('pkl_file/alqac_2022_test_question_pool.pkl', 'rb'))
     pass
