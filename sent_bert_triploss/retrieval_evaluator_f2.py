@@ -9,6 +9,8 @@ from sklearn.metrics import average_precision_score
 import numpy as np
 from typing import List
 
+from utils.utilities import calculate_percent_diff
+
 logger = logging.getLogger(__name__)
 
 esp = 1e-10
@@ -63,6 +65,7 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                             "cossim_recall", "cossim_f1_threshold", "cossim_ap",
                             "cossim_f2_threshold", "cossim_f2_best_threshold",
                             "cossim_f2_top_k", "cossim_f2_best_top_k",
+                            "cossim_f2_trail_threshold", "cossim_f2_best_trail_threshold",
                             "manhatten_accuracy", "manhatten_accuracy_threshold", "manhatten_f1", "manhatten_precision",
                             "manhatten_recall", "manhatten_f1_threshold", "manhatten_ap",
                             "euclidean_accuracy", "euclidean_accuracy_threshold", "euclidean_f1", "euclidean_precision",
@@ -144,7 +147,9 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                                                   ['euclidean', 'Euclidean-Distance', euclidean_distances, False],
                                                   ['dot', 'Dot-Product', dot_scores, True]]:
             acc, acc_threshold = self.find_best_acc_and_threshold(scores, labels, reverse)
-            f2_threshold, best_f2_threshold, f2_top_k, best_f2_top_k = self.find_best_f2score_and_threshold(
+            (f2_threshold, best_f2_threshold,
+             f2_top_k, best_f2_top_k,
+             f2_trail_threshold, best_f2_trail_threshold) = self.find_best_f2score_and_threshold(
                 sentences1=self.sentences1,
                 scores=cosine_scores,
                 label=self.labels)
@@ -171,7 +176,9 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                 'f2_threshold': f2_threshold,
                 'f2_best_threshold': best_f2_threshold,
                 'f2_top_k': f2_top_k,
-                'f2_best_top_k': best_f2_top_k
+                'f2_best_top_k': best_f2_top_k,
+                'f2_trail_threshold': f2_trail_threshold,
+                'f2_best_trail_threshold': best_f2_trail_threshold
             }
 
         return output_scores
@@ -185,20 +192,27 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
 
     @staticmethod
     def find_best_f2score_and_threshold(sentences1: List[str], scores: np.ndarray, label: List[int]):
+        # Tao set cac cau hoi co trong tap dev
         ques_pool = set(sentences1)
+        # Khoi tao dict luu do lien quan cua cau hoi voi cac dieu luat
         scores_dict = {
             sentences: [] for sentences in ques_pool
         }
+        # Khoi tao dict luu nhan du doan cua cau hoi voi cac dieu luat
         label_dict = {
             sentences: [] for sentences in ques_pool
         }
+        # Fill score vao cac dict vua khoi tao
         for i in range(len(sentences1)):
             scores_dict[sentences1[i]].append(scores[i])
             label_dict[sentences1[i]].append(label[i])
+
+        # Sort chi so cua dieu luat theo do lien quan voi cau hoi
         arg_sort_scores_dict = {
             sentences: np.argsort(scores_dict[sentences]) for sentences in ques_pool
         }
 
+        # Chon threshold tot nhat cho tap dev
         max_f2score_threshold = -1
         best_threshold = None
         for threshold in np.arange(-1, 1, 0.01):
@@ -215,9 +229,9 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                 max_f2score_threshold = avg_f2
                 best_threshold = threshold
 
+        # Chon top-k tot nhat cho tap dev
         max_f2score_top_k = -1
         best_top_k = None
-
         for top_k in range(10):
             total_f2 = 0
             for ques in ques_pool:
@@ -233,7 +247,27 @@ class RetrievalEvaluatorF2(SentenceEvaluator):
                 max_f2score_top_k = avg_f2
                 best_top_k = top_k
 
-        return max_f2score_threshold, best_threshold, max_f2score_top_k, best_top_k
+        # Chon trail_threshold tot nhat cho tap dev
+        max_f2score_trail_threshold = -1
+        best_trail_threshold = None
+        for trail_threshold in np.arange(0, 1, 0.01):
+            total_f2 = 0
+            for ques in ques_pool:
+                ques_labels = label_dict[ques]
+                ques_scores = scores_dict[ques]
+                highest_score = arg_sort_scores_dict[ques][-1]
+                ques_pred_label = [int(calculate_percent_diff(highest_score, s) >= trail_threshold)
+                                   for s in ques_scores]
+                total_f2 += RetrievalEvaluatorF2.calculate_f2score(pred_label=ques_pred_label, true_label=ques_labels)
+
+            avg_f2 = total_f2 / (len(ques_pool) + esp)
+            if avg_f2 > max_f2score_trail_threshold:
+                max_f2score_trail_threshold = avg_f2
+                best_trail_threshold = trail_threshold
+
+        return (max_f2score_threshold, best_threshold,
+                max_f2score_top_k, best_top_k,
+                max_f2score_trail_threshold, best_trail_threshold)
 
     @staticmethod
     def find_best_acc_and_threshold(scores, labels, high_score_more_similar: bool):
