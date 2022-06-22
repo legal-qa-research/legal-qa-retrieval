@@ -15,6 +15,7 @@ from data_processor.entities.article_identity import ArticleIdentity
 from data_processor.entities.question import Question
 from data_processor.question_pool import QuestionPool
 from utils.constant import pkl_test_question_pool, pkl_article_pool, pkl_private_cached_rel
+from utils.evaluating_submission import ESP
 
 
 def build_private_data() -> Tuple[QuestionPool, ArticlePool, List[List[int]]]:
@@ -66,7 +67,7 @@ def split_ids(n_samples: int, test_size=0.2):
 
 
 def calculate_percent_diff(base_score: float, score: float) -> float:
-    return abs(base_score - score) / base_score
+    return abs(base_score - score) / (base_score + ESP)
 
 
 def predict_relevance_article(model: SentenceTransformer,
