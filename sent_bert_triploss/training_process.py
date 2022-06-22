@@ -16,15 +16,15 @@ from sentence_transformers import InputExample
 class TrainingProcess:
     def __init__(self, args):
         self.args = args
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.data = Data(pkl_question_pool_path=pkl_question_pool, pkl_article_pool_path=pkl_article_pool,
                          pkl_cached_rel_path=pkl_cached_rel, pkl_cached_split_ids=self.args.split_ids,
                          args=args)
-        self.model = get_sent_bert_model(load_chk_point_path=args.load_chk_point)
+        self.model = get_sent_bert_model(load_chk_point_path=args.load_chk_point).to(self.device)
         if self.args.use_contrast_loss_fn == 1:
             self.loss_fn = losses.OnlineContrastiveLoss(model=self.model)
         else:
             self.loss_fn = losses.CosineSimilarityLoss(model=self.model)
-        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.num_epoch = args.n_epochs
 
     def get_evaluator(self, lis_examples: List[InputExample]):
@@ -38,7 +38,6 @@ class TrainingProcess:
     def start_training(self):
         train_dataloader, lis_test_examples = self.data.build_dataset()
         evaluator = self.get_evaluator(lis_examples=lis_test_examples)
-        self.model = self.model.to(self.device)
 
         self.model.fit(train_objectives=[(train_dataloader, self.loss_fn)], epochs=self.num_epoch,
                        warmup_steps=100, show_progress_bar=True, save_best_model=True,
@@ -57,8 +56,6 @@ class TrainingProcess:
         print(f'Number of r2 training examples: {len(r2_train_examples)}')
 
         r2_train_dataloader = DataLoader(r2_train_examples, shuffle=True, batch_size=self.args.batch_size)
-
-        self.model = self.model.to(self.device)
 
         self.model.fit(
             train_objectives=[(r2_train_dataloader, self.loss_fn)], epochs=self.num_epoch,
