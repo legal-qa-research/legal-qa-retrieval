@@ -56,7 +56,7 @@ class InferProcess:
             lis_pred_article_trail_threshold.append(trail_threshold_result)
 
         pickle.dump(test_infer_result,
-                    open(os.path.join('pkl_file', f'alqac_2022_{self.args.save_infer_file_name}.pkl', 'wb')))
+                    open(os.path.join('pkl_file', f'alqac_2022_{self.args.save_infer_file_name}.pkl'), 'wb'))
 
         return lis_pred_article_threshold, lis_pred_article_top_k, lis_pred_article_trail_threshold
 
