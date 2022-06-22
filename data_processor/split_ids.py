@@ -21,5 +21,17 @@ def start_split_and_save(dev_size=0.1, test_size=0.1):
     pickle.dump(save_obj, open('pkl_file/alqac_2022_split_ids.pkl', 'wb'))
 
 
+def split_hold_data_to_train():
+    question_pool: QuestionPool = pickle.load(open(pkl_question_pool, 'rb'))
+    lis_ids = [i for i in range(len(question_pool.lis_ques))]
+    save_obj = {
+        'train': lis_ids[:-2],
+        'dev': lis_ids[-2:-1],
+        'test': lis_ids[-1:]
+    }
+    pickle.dump(save_obj, open('pkl_file/alqac_2022_split_ids_for_submit.pkl', 'wb'))
+
+
 if __name__ == '__main__':
-    start_split_and_save()
+    # start_split_and_save()
+    split_hold_data_to_train()
