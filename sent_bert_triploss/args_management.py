@@ -136,4 +136,11 @@ parser.add_argument(
     help="Use segmenter or not",
 )
 
+parser.add_argument(
+    "--spec_device",
+    default='cpu',
+    type=str,
+    help="Device for training",
+)
+
 args = parser.parse_args()

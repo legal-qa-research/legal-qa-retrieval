@@ -17,7 +17,7 @@ from utils.utilities import get_raw_from_preproc, predict_relevance_article, wri
 class InferProcess:
     def __init__(self, args):
         self.args = args
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = self.args if torch.cuda.is_available() else 'cpu'
 
     def load_model(self):
         assert self.args.load_chk_point is not None, 'Must specify the checkpoint path'
