@@ -150,4 +150,11 @@ parser.add_argument(
     help="Device for training",
 )
 
+parser.add_argument(
+    "--save_infer_file_name",
+    default='test_infer_sent_bert',
+    type=str,
+    help="File for save the infer result for ensemble",
+)
+
 args = parser.parse_args()

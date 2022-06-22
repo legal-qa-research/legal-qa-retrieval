@@ -70,12 +70,49 @@ def calculate_percent_diff(base_score: float, score: float) -> float:
     return abs(base_score - score) / (base_score + ESP)
 
 
-def predict_relevance_article(model: SentenceTransformer,
-                              encoded_ques: Tensor,
+def get_relevant_score_with_ques(model: SentenceTransformer, encoded_ques: Tensor,
+                                 top_n_aid: List[int], arti_pool: ArticlePool):
+    # Bieu dien cau hoi va dieu luat thanh vector
+    lis_raw_article = [get_raw_from_preproc(arti_pool.proc_text_pool[aid]) for aid in top_n_aid]
+    lis_encoded_article = model.encode(sentences=lis_raw_article)
+
+    # Tinh diem tuong quan cosim giua cau hoi va top_n dieu luat
+    cosim_matrix = util.cos_sim(torch.Tensor(np.array([encoded_ques])), lis_encoded_article)
+    return cosim_matrix[0]
+
+
+def predict_relevance_article(relevant_score: Tensor,
                               top_n_aid: List[int],
                               arti_pool: ArticlePool,
                               threshold: float, top_k: int, trail_threshold: float
                               ) -> Tuple[List[ArticleIdentity], List[ArticleIdentity], List[ArticleIdentity]]:
+    # Sap xep theo diem lien quan
+    idx_sorted_relevant_score = np.argsort(relevant_score)
+
+    # Du doan lien quan theo top-k
+    top_k_aid_sorted = idx_sorted_relevant_score[-top_k:]
+    lis_aid_top_k = [arti_pool.article_identity[top_n_aid[i]] for i in top_k_aid_sorted]
+
+    # Du doan lien quan theo threshold
+    lis_aid_threshold = [arti_pool.article_identity[top_n_aid[i]]
+                         for i, is_greater in enumerate(relevant_score >= threshold) if is_greater]
+
+    # Du doan lien quan theo trail_threshold
+    lis_aid_trail_threshold: List[ArticleIdentity] = []
+    highest_relevant_score = relevant_score[idx_sorted_relevant_score[-1]]
+    for idx in range(len(top_n_aid)):
+        if calculate_percent_diff(highest_relevant_score, relevant_score[idx]) <= trail_threshold:
+            lis_aid_trail_threshold.append(arti_pool.article_identity[top_n_aid[idx]])
+
+    return lis_aid_threshold, lis_aid_top_k, lis_aid_trail_threshold
+
+
+def predict_relevance_article_old(model: SentenceTransformer,
+                                  encoded_ques: Tensor,
+                                  top_n_aid: List[int],
+                                  arti_pool: ArticlePool,
+                                  threshold: float, top_k: int, trail_threshold: float
+                                  ) -> Tuple[List[ArticleIdentity], List[ArticleIdentity], List[ArticleIdentity]]:
     # Bieu dien cau hoi va dieu luat thanh vector
     lis_raw_article = [get_raw_from_preproc(arti_pool.proc_text_pool[aid]) for aid in top_n_aid]
     lis_encoded_article = model.encode(sentences=lis_raw_article)

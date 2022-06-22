@@ -77,6 +77,6 @@ if __name__ == '__main__':
 
     fb = FeaturesBuilder(args=args, fasttext_model_path='traditional_ml/pretrained_fasttext/vnlaw_ft.bin')
     # fb = FeaturesBuilder(args=args, fasttext_model_path='traditional_ml/pretrained_fasttext/wiki.vi.bin')
-    fb.start_build(fast_text_type='vnlaw_kse_jac_tfidf')
+    fb.start_build(fast_text_type='vnlaw_alqac_2022_jac_tfidf')
 
     test_built_feature()

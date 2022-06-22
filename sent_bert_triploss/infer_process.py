@@ -1,3 +1,4 @@
+import os.path
 import pickle
 from typing import List
 
@@ -10,8 +11,9 @@ from data_processor.article_pool import ArticlePool
 from data_processor.entities.article_identity import ArticleIdentity
 from data_processor.question_pool import QuestionPool
 from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel, pkl_split_ids
+from utils.infer_result import ArticleRelevantScore, InferResult
 from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission, build_private_data, \
-    calculate_f2score
+    calculate_f2score, get_relevant_score_with_ques
 
 
 class InferProcess:
@@ -31,9 +33,19 @@ class InferProcess:
         lis_pred_article_top_k: List[List[ArticleIdentity]] = []
         lis_pred_article_trail_threshold: List[List[ArticleIdentity]] = []
 
+        test_infer_result: List[InferResult] = []
         for i, encoded_question in enumerate(tqdm(lis_encoded_question)):
+            # Tinh diem relevant
+            relevant_score = get_relevant_score_with_ques(model, encoded_question, cached_rel[i], arti_pool)
+
+            # Luu diem relevant vao object
+            lis_infer = [ArticleRelevantScore(arti_pool.article_identity[aid], relevant_score[i])
+                         for i, aid in enumerate(cached_rel[i])]
+            test_infer_result.append(InferResult(ques_pool.lis_ques[i].question_id, lis_infer))
+
+            # Thuc hien du doan ket qua theo relevant_score voi 3 chien luoc
             threshold_result, top_k_result, trail_threshold_result = predict_relevance_article(
-                encoded_ques=encoded_question, model=model,
+                relevant_score=relevant_score,
                 top_n_aid=cached_rel[i],
                 arti_pool=arti_pool,
                 threshold=self.args.threshold,
@@ -43,17 +55,24 @@ class InferProcess:
             lis_pred_article_top_k.append(top_k_result)
             lis_pred_article_trail_threshold.append(trail_threshold_result)
 
+        pickle.dump(test_infer_result,
+                    open(os.path.join('pkl_file', f'alqac_2022_{self.args.save_infer_file_name}.pkl', 'wb')))
+
         return lis_pred_article_threshold, lis_pred_article_top_k, lis_pred_article_trail_threshold
 
     def start_test(self):
+        # Lay id cua cac question trong tap test
         test_ids = pickle.load(open(pkl_split_ids, 'rb'))['test']
         ques_pool: QuestionPool = pickle.load(open(pkl_question_pool, 'rb'))
+        # Lay cac object question trong question pool theo id
         subset_ques_pool = ques_pool.extract_sub_set(test_ids)
 
         cached_rel = pickle.load(open(pkl_cached_rel, 'rb'))
+        # Lay cac dieu luat lien quan toi question trong tap test
         subset_cached_rel = [cached_rel[i] for i in test_ids]
 
         arti_pool: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
+        # Du doan ket qua lien quan giua cau hoi va dieu luat theo 3 chien luoc du doan
         lis_pred_article_threshold, lis_pred_article_top_k, lis_pred_article_trail_threshold = self.infer_sample(
             subset_ques_pool, arti_pool,
             subset_cached_rel)
