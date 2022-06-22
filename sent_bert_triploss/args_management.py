@@ -137,6 +137,13 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--trail_threshold",
+    default=0.1,
+    type=float,
+    help="Trail threshold for inference",
+)
+
+parser.add_argument(
     "--spec_device",
     default='cpu',
     type=str,
