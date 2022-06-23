@@ -55,7 +55,7 @@ class RunInferProcess:
                 infer_result_dict[qid].append(ars)
         test_infer_result: List[InferResult] = []
         for qid in infer_result_dict.keys():
-            test_infer_result.append(InferResult(str(qid), infer_result_dict[qid]))
+            test_infer_result.append(InferResult(self.ques_pool.lis_ques[qid].question_id, infer_result_dict[qid]))
         pickle.dump(test_infer_result, open(f'alqac_2022_fast_text.pkl', 'wb'))
 
     def predict_threshold(self, lis_raw_inp_exp: List[RawInputExample]):
