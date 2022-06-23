@@ -10,7 +10,7 @@ class Question:
     answer: Union[str, None]
 
     def __init__(self, question_json: dict):
-        self.question_id = question_json.get('question_id')
+        self.question_id = question_json.get('id')
         self.question = question_json.get('text')
         if question_json.get('relevant_articles') is not None:
             self.relevance_articles = [ArticleIdentity(article_identity_json)

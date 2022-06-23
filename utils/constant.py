@@ -1,6 +1,11 @@
 import os
 
 pkl_root = 'pkl_file'
+data_root = os.path.join('data', 'ALQAC_2022')
+
+json_train_question = os.path.join(data_root, 'question_clean_v2.json')
+json_law = os.path.join(data_root, 'law.json')
+json_test_question = os.path.join(data_root, 'ALQAC_test_release.json')
 
 pkl_article_pool = os.path.join(pkl_root, 'alqac_2022_article_pool.pkl')
 pkl_question_pool = os.path.join(pkl_root, 'alqac_2022_question_pool.pkl')

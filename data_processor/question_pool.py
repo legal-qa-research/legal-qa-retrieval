@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from data_processor.entities.question import Question
 from data_processor.preprocessor import Preprocessor
+from utils.constant import json_train_question, pkl_question_pool
 
 
 class QuestionPool:
@@ -41,11 +42,17 @@ if __name__ == '__main__':
     # preproc = Preprocessor()
     # qp.run_preprocess(preproc)
     # pickle.dump(qp, open('data_processor/mini_question_pool.pkl', 'wb'))
-
-    qp = QuestionPool('data/ALQAC_2022/ALQAC_test_release.json')
+    #
+    # qp = QuestionPool('data/ALQAC_2022/ALQAC_test_release.json')
+    # preproc = Preprocessor()
+    # qp.run_preprocess(preproc)
+    # pickle.dump(qp, open('pkl_file/alqac_2022_test_question_pool.pkl', 'wb'))
+    #
+    # qp = pickle.load(open('pkl_file/alqac_2022_test_question_pool.pkl', 'rb'))
+    #
+    qp = QuestionPool(json_train_question)
     preproc = Preprocessor()
     qp.run_preprocess(preproc)
-    pickle.dump(qp, open('pkl_file/alqac_2022_test_question_pool.pkl', 'wb'))
-
-    qp = pickle.load(open('pkl_file/alqac_2022_test_question_pool.pkl', 'rb'))
+    pickle.dump(qp, open(pkl_question_pool, 'wb'))
+    qp = pickle.load(open(pkl_question_pool, 'rb'))
     pass
