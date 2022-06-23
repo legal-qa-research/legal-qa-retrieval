@@ -14,6 +14,7 @@ from traditional_ml.features_builder import FeaturesBuilder
 from traditional_ml.raw_input_example import RawInputExample
 
 from utils.constant import pkl_tfidf
+from utils.infer_result import ArticleRelevantScore, InferResult
 from utils.utilities import build_private_data, get_flat_list_from_preproc, write_submission
 from xgboost import XGBClassifier
 
@@ -39,6 +40,22 @@ class RunInferProcess:
     def reset_ques_pool(self):
         for ques in self.ques_pool.lis_ques:
             ques.relevance_articles = []
+
+    def save_predict_prob(self, lis_raw_inp_exp: List[RawInputExample]):
+        infer_result_dict = {}
+        for raw_inp_exp in lis_raw_inp_exp:
+            aid = raw_inp_exp.article_id
+            qid = raw_inp_exp.ques_id
+            prob = raw_inp_exp.prob
+            ars = ArticleRelevantScore(self.arti_pool.article_identity[aid], prob)
+            if qid not in infer_result_dict.keys():
+                infer_result_dict[qid] = [ars]
+            else:
+                infer_result_dict[qid].append(ars)
+        test_infer_result: List[InferResult] = []
+        for qid in infer_result_dict.keys():
+            test_infer_result.append(InferResult(str(qid), infer_result_dict[qid]))
+        pickle.dump(test_infer_result, open(f'alqac_2022_fast_text.pkl', 'wb'))
 
     def predict_threshold(self, lis_raw_inp_exp: List[RawInputExample]):
         self.reset_ques_pool()
