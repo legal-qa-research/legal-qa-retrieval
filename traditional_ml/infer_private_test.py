@@ -16,7 +16,7 @@ from traditional_ml.raw_input_example import RawInputExample
 from utils.constant import pkl_tfidf, pkl_xgb_model, xgb_model
 from utils.infer_result import ArticleRelevantScore, InferResult
 from utils.utilities import build_private_data, get_flat_list_from_preproc, write_submission
-from xgboost import XGBClassifier
+from xgboost import XGBClassifier, Booster
 
 
 class RunInferProcess:
