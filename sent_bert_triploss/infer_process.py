@@ -13,7 +13,7 @@ from data_processor.question_pool import QuestionPool
 from utils.constant import pkl_question_pool, pkl_article_pool, pkl_cached_rel, pkl_split_ids
 from utils.infer_result import ArticleRelevantScore, InferResult
 from utils.utilities import get_raw_from_preproc, predict_relevance_article, write_submission, build_private_data, \
-    calculate_f2score, get_relevant_score_with_ques
+    calculate_f2score, get_relevant_score_with_ques, build_public_test_data
 
 
 class InferProcess:
@@ -61,17 +61,8 @@ class InferProcess:
         return lis_pred_article_threshold, lis_pred_article_top_k, lis_pred_article_trail_threshold
 
     def start_test(self):
-        # Lay id cua cac question trong tap test
-        test_ids = pickle.load(open(pkl_split_ids, 'rb'))['test']
-        ques_pool: QuestionPool = pickle.load(open(pkl_question_pool, 'rb'))
-        # Lay cac object question trong question pool theo id
-        subset_ques_pool = ques_pool.extract_sub_set(test_ids)
+        subset_ques_pool, arti_pool, subset_cached_rel = build_public_test_data()
 
-        cached_rel = pickle.load(open(pkl_cached_rel, 'rb'))
-        # Lay cac dieu luat lien quan toi question trong tap test
-        subset_cached_rel = [cached_rel[i] for i in test_ids]
-
-        arti_pool: ArticlePool = pickle.load(open(pkl_article_pool, 'rb'))
         # Du doan ket qua lien quan giua cau hoi va dieu luat theo 3 chien luoc du doan
         lis_pred_article_threshold, lis_pred_article_top_k, lis_pred_article_trail_threshold = self.infer_sample(
             subset_ques_pool, arti_pool,
