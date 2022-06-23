@@ -94,7 +94,7 @@ class RunInferProcess:
         lis_features: List[np.ndarray] = []
         for raw_ques in tqdm(lis_raw_inp_exp, desc='Building Features'):
             lis_features.append(FeaturesBuilder.cal_feature_from_inp(input_exp=raw_ques, ft=self.fasttext_model,
-                                                                     tfidf_vtr=self.tfidf_vtr))
+                                                                     tfidf_vtr=self.tfidf_vtr)[:-1])
         print('Predicting ... ')
         for i, p in enumerate(model.predict_proba(lis_features)[:, 1]):
             lis_raw_inp_exp[i].prob = p
