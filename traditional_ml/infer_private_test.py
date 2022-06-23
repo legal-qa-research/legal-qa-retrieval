@@ -15,13 +15,14 @@ from traditional_ml.raw_input_example import RawInputExample
 
 from utils.constant import pkl_tfidf, pkl_xgb_model, xgb_model
 from utils.infer_result import ArticleRelevantScore, InferResult
-from utils.utilities import build_private_data, get_flat_list_from_preproc, write_submission
+from utils.utilities import build_private_data, get_flat_list_from_preproc, write_submission, build_public_test_data
 from xgboost import XGBClassifier, Booster
 
 
 class RunInferProcess:
     def __init__(self, args):
-        self.ques_pool, self.arti_pool, self.cached_rel = build_private_data()
+        # self.ques_pool, self.arti_pool, self.cached_rel = build_private_data()
+        self.ques_pool, self.arti_pool, self.cached_rel = build_public_test_data()
         self.fasttext_model = fasttext.load_model(fasttext_model)
         self.tfidf_vtr: TfidfVectorizer = pickle.load(open(pkl_tfidf, 'rb'))
         self.args = args
@@ -100,6 +101,7 @@ class RunInferProcess:
             lis_raw_inp_exp[i].prob = p
         print('Predict done, start record result')
 
+        self.save_predict_prob(lis_raw_inp_exp)
         self.predict_threshold(lis_raw_inp_exp)
         self.predict_top_k(lis_raw_inp_exp)
 
