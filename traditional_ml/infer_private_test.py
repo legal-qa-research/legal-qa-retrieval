@@ -88,7 +88,8 @@ class RunInferProcess:
     def start_infer(self):
         lis_raw_inp_exp = self.start_build_private_data_feature()
         # model: XGBClassifier = pickle.load(open(pkl_xgb_model, 'rb'))
-        model: XGBClassifier = XGBClassifier().load_model(xgb_model)
+        model: XGBClassifier = XGBClassifier()
+        model.load_model(xgb_model)
 
         lis_features: List[np.ndarray] = []
         for raw_ques in tqdm(lis_raw_inp_exp, desc='Building Features'):
