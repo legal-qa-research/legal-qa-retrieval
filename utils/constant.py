@@ -11,3 +11,4 @@ pkl_private_cached_rel = os.path.join(pkl_root, 'alqac_2022_test_cached_rel_v1_t
 pkl_split_ids = os.path.join(pkl_root, 'alqac_2022_split_ids.pkl')
 pkl_tfidf = os.path.join(pkl_root, 'alqac_2022_tfidf.pkl')
 pkl_legal_graph = os.path.join(pkl_root, 'alqac_2022_legal_graph.pkl')
+pkl_xgb_model = os.path.join(pkl_root, 'alqac_2022_xgb_model.pkl')
