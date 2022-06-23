@@ -51,7 +51,7 @@ class WeightedEnsemble:
     def check_data_synchronous(self):
         for i in range(len(self.bm25)):
             qid = self.bm25[i].qid
-            if self.model_v4[i].qid != qid or self.model_v7[i].qid != qid or self.xgboost[i].qid:
+            if self.model_v4[i].qid != qid or self.model_v7[i].qid != qid or self.xgboost[i].qid != qid:
                 return False
             for j in range(len(self.bm25[i].list_infer)):
                 aid = self.bm25[i].list_infer[j].article_identity
@@ -122,17 +122,17 @@ class WeightedEnsemble:
                     lis_combined_infer = self.combine_model_score(alpha_model_v4, alpha_model_v7,
                                                                   alpha_bm25, alpha_xgboost)
                     f2_score = self.calculate_f2_score(lis_combined_infer)
-                    f.write(f'alpha_model_v4: {alpha_model_v4}')
-                    f.write(f'alpha_model_v7: {alpha_model_v7}')
-                    f.write(f'alpha_xgboost: {alpha_xgboost}')
-                    f.write(f'alpha_bm25: {alpha_bm25} \n')
+                    f.write(f'alpha_model_v4: {alpha_model_v4} | ')
+                    f.write(f'alpha_model_v7: {alpha_model_v7} | ')
+                    f.write(f'alpha_xgboost: {alpha_xgboost} | ')
+                    f.write(f'alpha_bm25: {alpha_bm25} | ')
                     f.write(f'f2-score: {f2_score} \n')
                     if f2_score > max_f2_score:
                         max_f2_score = f2_score
                         best_weight = (alpha_model_v4, alpha_model_v7, alpha_bm25)
 
         # Log lai tap weight co diem f2 cao nhat
-        f.write(f'best_f2_score: {max_f2_score} | best_weight: {best_weight}')
+        f.write(f'best_f2_score: {max_f2_score} | best_weight: {best_weight} \n')
         f.close()
 
 
