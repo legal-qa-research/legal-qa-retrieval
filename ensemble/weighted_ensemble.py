@@ -51,7 +51,7 @@ class WeightedEnsemble:
     def check_data_synchronous(self):
         for i in range(len(self.bm25)):
             qid = self.bm25[i].qid
-            if self.model_v4[i].qid != qid or self.model_v7[i].qid != qid:
+            if self.model_v4[i].qid != qid or self.model_v7[i].qid != qid or self.xgboost[i].qid:
                 return False
             for j in range(len(self.bm25[i].list_infer)):
                 aid = self.bm25[i].list_infer[j].article_identity
@@ -59,9 +59,12 @@ class WeightedEnsemble:
                     return False
                 if self.model_v7[i].list_infer[j].article_identity != aid:
                     return False
+                if self.xgboost[i].list_infer[j].article_identity != aid:
+                    return False
         return True
 
-    def combine_model_score(self, alpha_model_v4: float, alpha_model_v7: float, alpha_bm25: float) -> List[InferResult]:
+    def combine_model_score(self, alpha_model_v4: float, alpha_model_v7: float,
+                            alpha_xgboost: float, alpha_bm25: float) -> List[InferResult]:
         list_infer_result: List[InferResult] = []
         # Ket hop diem theo trong so
         for i in range(len(self.bm25)):
@@ -72,7 +75,8 @@ class WeightedEnsemble:
                 combined_score = combine_float_score([
                     (alpha_model_v4, self.model_v4[i].list_infer[j].relevant_score),
                     (alpha_model_v7, self.model_v7[i].list_infer[j].relevant_score),
-                    (alpha_bm25, self.bm25[i].list_infer[j].relevant_score)
+                    (alpha_bm25, self.bm25[i].list_infer[j].relevant_score),
+                    (alpha_xgboost, self.xgboost[i].list_infer[j].relevant_score)
                 ])
                 list_article_score.append(ArticleRelevantScore(aid, combined_score))
             list_infer_result.append(InferResult(qid, list_article_score))
@@ -103,6 +107,7 @@ class WeightedEnsemble:
         normalize_score(self.model_v4)
         normalize_score(self.bm25)
         normalize_score(self.model_v7)
+        normalize_score(self.xgboost)
 
         # Tao file log lai qua trinh tim kiem weight
         f = open(ensemble_log, 'w')
@@ -111,17 +116,20 @@ class WeightedEnsemble:
         max_f2_score: float = 0
         best_weight: Tuple[float, float, float] = (0, 0, 0)
         for alpha_model_v4 in tqdm(np.arange(0, 1, 0.01), desc='For weight model v4'):
-            for alpha_model_v7 in tqdm(np.arange(0, 1 - alpha_model_v4, 0.01), desc='For weight model v3'):
-                alpha_bm25 = 1 - alpha_model_v4 - alpha_model_v7
-                lis_combined_infer = self.combine_model_score(alpha_model_v4, alpha_model_v7, alpha_bm25)
-                f2_score = self.calculate_f2_score(lis_combined_infer)
-                f.write(f'alpha_model_v4: {alpha_model_v4}')
-                f.write(f'alpha_model_v7: {alpha_model_v7}')
-                f.write(f'alpha_bm25: {alpha_bm25} \n')
-                f.write(f'f2-score: {f2_score} \n')
-                if f2_score > max_f2_score:
-                    max_f2_score = f2_score
-                    best_weight = (alpha_model_v4, alpha_model_v7, alpha_bm25)
+            for alpha_model_v7 in np.arange(0, 1 - alpha_model_v4, 0.01):
+                for alpha_xgboost in np.arange(0, 1 - alpha_model_v4 - alpha_model_v7, 0.01):
+                    alpha_bm25 = 1 - alpha_model_v4 - alpha_model_v7 - alpha_xgboost
+                    lis_combined_infer = self.combine_model_score(alpha_model_v4, alpha_model_v7,
+                                                                  alpha_bm25, alpha_xgboost)
+                    f2_score = self.calculate_f2_score(lis_combined_infer)
+                    f.write(f'alpha_model_v4: {alpha_model_v4}')
+                    f.write(f'alpha_model_v7: {alpha_model_v7}')
+                    f.write(f'alpha_xgboost: {alpha_xgboost}')
+                    f.write(f'alpha_bm25: {alpha_bm25} \n')
+                    f.write(f'f2-score: {f2_score} \n')
+                    if f2_score > max_f2_score:
+                        max_f2_score = f2_score
+                        best_weight = (alpha_model_v4, alpha_model_v7, alpha_bm25)
 
         # Log lai tap weight co diem f2 cao nhat
         f.write(f'best_f2_score: {max_f2_score} | best_weight: {best_weight}')
