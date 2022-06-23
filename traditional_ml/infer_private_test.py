@@ -13,7 +13,7 @@ from traditional_ml.constant import fasttext_model
 from traditional_ml.features_builder import FeaturesBuilder
 from traditional_ml.raw_input_example import RawInputExample
 
-from utils.constant import pkl_tfidf, pkl_xgb_model, xgb_model
+from utils.constant import pkl_tfidf, pkl_xgb_model, xgb_model, pkl_xgboost_infer_result
 from utils.infer_result import ArticleRelevantScore, InferResult
 from utils.utilities import build_private_data, get_flat_list_from_preproc, write_submission, build_public_test_data
 from xgboost import XGBClassifier, Booster
@@ -21,8 +21,8 @@ from xgboost import XGBClassifier, Booster
 
 class RunInferProcess:
     def __init__(self, args):
-        # self.ques_pool, self.arti_pool, self.cached_rel = build_private_data()
-        self.ques_pool, self.arti_pool, self.cached_rel = build_public_test_data()
+        self.ques_pool, self.arti_pool, self.cached_rel = build_private_data()
+        # self.ques_pool, self.arti_pool, self.cached_rel = build_public_test_data()
         self.fasttext_model = fasttext.load_model(fasttext_model)
         self.tfidf_vtr: TfidfVectorizer = pickle.load(open(pkl_tfidf, 'rb'))
         self.args = args
@@ -56,7 +56,7 @@ class RunInferProcess:
         test_infer_result: List[InferResult] = []
         for qid in infer_result_dict.keys():
             test_infer_result.append(InferResult(self.ques_pool.lis_ques[qid].question_id, infer_result_dict[qid]))
-        pickle.dump(test_infer_result, open(f'alqac_2022_fast_text.pkl', 'wb'))
+        pickle.dump(test_infer_result, open(pkl_xgboost_infer_result, 'wb'))
 
     def predict_threshold(self, lis_raw_inp_exp: List[RawInputExample]):
         self.reset_ques_pool()

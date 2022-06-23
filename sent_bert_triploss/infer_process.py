@@ -61,7 +61,7 @@ class InferProcess:
         return lis_pred_article_threshold, lis_pred_article_top_k, lis_pred_article_trail_threshold
 
     def start_test(self):
-        subset_ques_pool, arti_pool, subset_cached_rel = build_public_test_data()
+        subset_ques_pool, arti_pool, subset_cached_rel = build_private_data()
 
         # Du doan ket qua lien quan giua cau hoi va dieu luat theo 3 chien luoc du doan
         lis_pred_article_threshold, lis_pred_article_top_k, lis_pred_article_trail_threshold = self.infer_sample(

@@ -8,12 +8,12 @@ from data_processor.article_pool import ArticlePool
 from data_processor.question_pool import QuestionPool
 from utils.constant import pkl_article_pool, pkl_question_pool, pkl_bm25okapi, pkl_bm25_infer_result
 from utils.infer_result import ArticleRelevantScore, InferResult
-from utils.utilities import build_public_test_data, get_flat_list_from_preproc
+from utils.utilities import build_public_test_data, get_flat_list_from_preproc, build_private_data
 
 
 class Bm25InferTest:
     def __init__(self):
-        self.qp, self.ap, self.cached_rel = build_public_test_data()
+        self.qp, self.ap, self.cached_rel = build_private_data()
         self.bm25okapi: BM25Okapi = pickle.load(open(pkl_bm25okapi, 'rb'))
 
     def start_build_relevant_score(self):
