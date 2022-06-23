@@ -74,6 +74,7 @@ if __name__ == '__main__':
     from data_processor.question_pool import QuestionPool
     from bm25_ranking.bm25_ranker import Bm25Ranker
     from bm25_ranking.bm25_ranker_cached import Bm25RankerCached
+    from scipy.sparse import _csr
 
     fb = FeaturesBuilder(args=args, fasttext_model_path='traditional_ml/pretrained_fasttext/vnlaw_ft.bin')
     # fb = FeaturesBuilder(args=args, fasttext_model_path='traditional_ml/pretrained_fasttext/wiki.vi.bin')
