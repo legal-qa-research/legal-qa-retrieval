@@ -13,7 +13,8 @@ from sklearn.preprocessing import MinMaxScaler
 
 from utils.evaluating_submission import ESP
 from utils.infer_result import InferResult, ArticleRelevantScore
-from utils.utilities import build_public_test_data, calculate_percent_diff, calculate_f2score
+from utils.utilities import build_public_test_data, calculate_percent_diff, calculate_f2score, build_private_data
+import json
 
 
 def normalize_score(normalize_list: List[InferResult]):
@@ -39,7 +40,7 @@ def combine_float_score(list_sw: List[Tuple[float, float]]) -> float:
 
 class WeightedEnsemble:
     def __init__(self):
-        self.ques_pool, self.arti_pool, self.cached_rel = build_public_test_data()
+        self.ques_pool, self.arti_pool, self.cached_rel = build_private_data()
         self.model_v4: List[InferResult] = pickle.load(open(pkl_sent_bert_v4_infer_result, 'rb'))
         self.model_v7: List[InferResult] = pickle.load(open(pkl_sent_bert_v7_infer_result, 'rb'))
         self.bm25: List[InferResult] = pickle.load(open(pkl_bm25_infer_result, 'rb'))
@@ -86,6 +87,22 @@ class WeightedEnsemble:
 
         return list_infer_result
 
+    def predict(self, lis_infer: List[InferResult]) -> Tuple[List[List[ArticleIdentity]], List[str]]:
+        # Tinh diem F2score dua vao diem lien quan voi chien luoc du doan trail_threshold
+        test_predict_article: List[List[ArticleIdentity]] = []
+        test_qid: List[str] = []
+        for i, ques_infer in enumerate(lis_infer):
+            qid = ques_infer.qid
+            test_qid.append(qid)
+            assert qid == self.ques_pool.lis_ques[i].question_id, 'Question is not synchronous'
+            highest_relevant_aid = np.max([article_infer.relevant_score for article_infer in ques_infer.list_infer])
+            list_predict: List[ArticleIdentity] = []
+            for article_infer in ques_infer.list_infer:
+                if calculate_percent_diff(highest_relevant_aid, article_infer.relevant_score) <= self.trail_threshold:
+                    list_predict.append(article_infer.article_identity)
+            test_predict_article.append(list_predict)
+        return test_predict_article, test_qid
+
     def calculate_f2_score(self, lis_infer: List[InferResult]) -> float:
         # Tinh diem F2score dua vao diem lien quan voi chien luoc du doan trail_threshold
         test_predict_article: List[List[ArticleIdentity]] = []
@@ -102,6 +119,26 @@ class WeightedEnsemble:
             test_predict_article.append(list_predict)
         return calculate_f2score(test_predict_article, test_true_article)
 
+    # alpha_model_v4: 0.1 | alpha_model_v7: 0.30000000000000004 | alpha_xgboost: 0.5 | alpha_bm25: 0.09999999999999998 | f2 - score: 0.8242424241422193
+    # alpha_model_v4: 0.2 | alpha_model_v7: 0.2 | alpha_xgboost: 0.6000000000000001 | alpha_bm25: 0.0 | f2-score: 0.8402597401576078
+    # alpha_model_v4: 0.6000000000000001 | alpha_model_v7: 0.2 | alpha_xgboost: 0.1 | alpha_bm25: 0.0999999999999999 | f2-score: 0.8129870128883544
+    def infer_and_save(self, alpha_model_v4=0.2, alpha_model_v7=0.2, alpha_bm25=0.0, alpha_xgboost=0.6):
+        list_infer = self.combine_model_score(alpha_model_v4, alpha_model_v7, alpha_xgboost, alpha_bm25)
+        test_predict_article, test_qid = self.predict(list_infer)
+        result_object = []
+        for i in range(len(test_qid)):
+            result_object.append({
+                'question_id': test_qid[i],
+                'relevant_articles': [
+                    {
+                        'law_id': article_result.law_id,
+                        'article_id': article_result.article_id
+                    } for article_result in test_predict_article[i]
+                ]
+            })
+
+        json.dump(result_object, open('ensemble_run.json', 'w'))
+
     def start_ensemble(self):
         # Chuan hoa diem danh gia cua moi mo hinh
         normalize_score(self.model_v4)
@@ -115,9 +152,9 @@ class WeightedEnsemble:
         # Tim kiem trong so cua moi mo hinh
         max_f2_score: float = 0
         best_weight: Tuple[float, float, float] = (0, 0, 0)
-        for alpha_model_v4 in tqdm(np.arange(0, 1, 0.01), desc='For weight model v4'):
-            for alpha_model_v7 in np.arange(0, 1 - alpha_model_v4, 0.01):
-                for alpha_xgboost in np.arange(0, 1 - alpha_model_v4 - alpha_model_v7, 0.01):
+        for alpha_model_v4 in tqdm(np.arange(0, 1, 0.1), desc='For weight model v4'):
+            for alpha_model_v7 in np.arange(0, 1 - alpha_model_v4, 0.1):
+                for alpha_xgboost in np.arange(0, 1 - alpha_model_v4 - alpha_model_v7, 0.1):
                     alpha_bm25 = 1 - alpha_model_v4 - alpha_model_v7 - alpha_xgboost
                     lis_combined_infer = self.combine_model_score(alpha_model_v4, alpha_model_v7,
                                                                   alpha_bm25, alpha_xgboost)
@@ -138,4 +175,5 @@ class WeightedEnsemble:
 
 if __name__ == '__main__':
     weighted_ensemble = WeightedEnsemble()
-    weighted_ensemble.start_ensemble()
+    weighted_ensemble.infer_and_save()
+    # weighted_ensemble.start_ensemble()
